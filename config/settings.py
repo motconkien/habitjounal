@@ -58,10 +58,16 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'URL_FORMAT_OVERRIDE': None,
+    'APPEND_SLASH': True  
 }
+
 
 ROOT_URLCONF = 'config.urls'
 
