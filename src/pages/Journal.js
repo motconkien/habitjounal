@@ -8,6 +8,7 @@ export default function Journal() {
   const [journals, setJournals] = useState([])
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [mood, setMood] =useState('');
    //open modal to create new journal 
   const [showModal, setShowModal] = useState(false);
   //fetch data from api
@@ -20,14 +21,36 @@ export default function Journal() {
   }
 };
 
+//fetch moodchoice
+const [moodChoices, setMoodchoice] = useState([]);
+
+const fetchMoodchoice = async () => {
+  try {
+    const res = await API.get('journal/mood-choices/');
+    setMoodchoice(res.data);
+    // console.log("AAAAA:",res.data)
+  } catch (err) {
+    console.error('Error fetching mood choices:', err);
+  }
+};
+
+const handleOpenModal = () => {
+  setShowModal(true);
+
+  // Fetch mood choices only if not already fetched
+  if (moodChoices.length === 0) {
+    fetchMoodchoice();  
+  }
+};
+
 //handle submit journal content
-  const handleAddJournal = async (e) => {
+const handleAddJournal = async (e) => {
     e.preventDefault();
     try {
       if (selectedJournal) {
-        await API.put('journal/'+selectedJournal.id+"/", {title,content});
+        await API.put('journal/'+selectedJournal.id+"/", {title,content,mood});
       } else {
-        await API.post('journal/',{title,content})
+        await API.post('journal/',{title,content,mood})
       }
       
     } catch (err) {
@@ -39,9 +62,6 @@ export default function Journal() {
     setTitle('');
     setShowModal(false);
     setSelectedJournal(null)
-
-    //fetch new
-    // fetchJournals();
   };
 
   useEffect(() => {
@@ -84,10 +104,16 @@ export default function Journal() {
     }
   };
 
+  //handle mood label 
+  const getMoodLabel = (value) => {
+    fetchMoodchoice();
+    const match = moodChoices.find(([val]) => val === value);
+    return match ? match[1]:value;
+  }
   return (
     <div className="journal-page">
-      <h1>My Journal</h1>
-      <button className="write-btn" onClick={() => setShowModal(true)}>New journal</button>
+      <h1>My Journals</h1>
+      <button className="write-btn" onClick={handleOpenModal}>New journal</button>
 
       <div className="journal-list">
         {journals.map((Journal) => (
@@ -100,6 +126,7 @@ export default function Journal() {
               <small>{new Date(Journal.date).toLocaleDateString()}</small> 
             </div>
             <p className="content">{Journal.content.slice(0,100)}</p>
+            <small><strong>Mood:</strong> {getMoodLabel(Journal.mood)}</small>
           </div>
         ))}
       </div>
@@ -112,6 +139,7 @@ export default function Journal() {
           </div>
           <p><em>{new Date(selectedJournal.date).toLocaleString()}</em></p>
           <p>{selectedJournal.content}</p>
+          <p>{getMoodLabel(selectedJournal.mood)}</p>
           <div className="actions">
             <button onClick={() => handleEdit(selectedJournal)}>
               <FaEdit style={{ marginRight: 8 }} />
@@ -147,6 +175,20 @@ export default function Journal() {
               onChange={(e) => setContent(e.target.value)}
               required
             />
+            <br />
+            <select
+              className="input-item"
+              value={mood}
+              onChange={(e) => setMood(e.target.value)}
+              required
+            >
+              <option value="">Select a mood</option>
+              {moodChoices.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
             <br />
             <div className="actions">
               <button type="submit">Submit</button>

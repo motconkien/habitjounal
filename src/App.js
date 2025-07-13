@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import './styles.css';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -28,6 +28,7 @@ function App() {
     if (token) {
       setAuthToken(token);
       setIsLoggedIn(true);
+      setAuthChecked(true);
     }
   }, []);
 
@@ -41,7 +42,7 @@ function App() {
   setUsername(storedName);
   }, [isLoggedIn]); // update username when login state changes
 
-
+  if (!authChecked) return <div>Loading...</div>;
   return (
     <Router>
       <Routes>
@@ -98,7 +99,7 @@ function App() {
                 </div>
                 <div className="main-content">
                   <Routes>
-                    <Route path="/" element={<Navigate to="/dashboard" />} />
+                    <Route index element={<Navigate to="/dashboard" />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/journal" element={<Journal />} />
                     <Route path="/habit" element={<Habit />} />

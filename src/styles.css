@@ -208,9 +208,10 @@ body,
 .journal-list {
   margin-top: 8px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, 300px);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
   justify-content: start;
+
 }
 
 .journal-card {
@@ -311,6 +312,7 @@ body,
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
   color: #ffffff;
 }
+
 .actions {
   margin-top: 20px;
   display: flex;
@@ -347,19 +349,38 @@ body,
 
 .input-item {
   box-sizing: border-box;
+  height: 36px;
   width: 100%;
   padding: 10px;
   font-size: 16px;
   margin-bottom: 12px;
-  border: 1px solid #fefefe;
+  border: 1px solid #fefefea2;
   border-radius: 6px;
   outline: none;
   transition: border 0.3s;
+  background-color: #141414b3;
 }
 
 textarea {
   min-height: 400px;
+  height: auto;
 }
+
+select.input-item {
+  appearance: none;           /* Remove native style */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 16px;
+  background-color: #141414b3;
+  color: #fefefea2;
+  box-shadow: none;           /* Remove inner shadow */
+  background-image: none;     /* Remove dropdown arrow */
+}
+
 
 .input-item:focus {
   border-color: #8e2de2;
