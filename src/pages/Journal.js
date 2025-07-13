@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import Modal from "../components/Modal";
 import { FaTimes, FaEdit, FaTrash } from "react-icons/fa";
-import API, {setAuthToken} from "../api";
-import axios from "axios";
+import API from "../api";
 
 export default function Journal() {
   const [journals, setJournals] = useState([])
@@ -35,6 +34,9 @@ const fetchMoodchoice = async () => {
 };
 
 const handleOpenModal = () => {
+  setContent('');
+  setTitle('');
+  setMood('');
   setShowModal(true);
 
   // Fetch mood choices only if not already fetched
@@ -60,6 +62,7 @@ const handleAddJournal = async (e) => {
     //clear form 
     setContent('');
     setTitle('');
+    setMood('');
     setShowModal(false);
     setSelectedJournal(null)
   };
@@ -113,7 +116,7 @@ const handleAddJournal = async (e) => {
   return (
     <div className="journal-page">
       <h1>My Journals</h1>
-      <button className="write-btn" onClick={handleOpenModal}>New journal</button>
+      <button className="add-btn" onClick={handleOpenModal}>New journal</button>
 
       <div className="journal-list">
         {journals.map((Journal) => (

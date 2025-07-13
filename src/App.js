@@ -41,11 +41,13 @@ function App() {
   const storedName = localStorage.getItem('username');
   setUsername(storedName);
   }, [isLoggedIn]); // update username when login state changes
-
-  if (!authChecked) return <div>Loading...</div>;
+  if (!authChecked) {
+      return <div>Loading...</div>;
+    }
   return (
     <Router>
       <Routes>
+
         {/* AUTH ROUTES */}
         <Route
           path="/login"

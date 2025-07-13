@@ -188,12 +188,12 @@ body,
 
 
 /* Journal CSS */
-.journal-page {
+.journal-page, .habit-page {
   padding: 20px;
-  max-width: 1600px;
+  max-width: 100%;
 }
 
-.write-btn {
+.add-btn {
   margin-top: 24px;
   margin-bottom: 24px;
   padding: 10px 15px;
@@ -222,7 +222,7 @@ body,
   border-radius: 8px;
   background-color: rgba(96, 96, 96, 0.3);
   box-shadow: 0 4px 12px rgba(193, 193, 193, 0.128);      
-  height: 120px;
+  min-height: 120px;
   color: white;
 }
 
@@ -244,9 +244,9 @@ body,
   margin-top: 4px;
 }
 
-/* Content: flexible block with line limit */
 .journal-card .content {
   padding-top: 10px;
+  padding-bottom: 10px;
   flex: 1;
   margin: 0;
   overflow: hidden;
@@ -359,6 +359,7 @@ body,
   outline: none;
   transition: border 0.3s;
   background-color: #141414b3;
+  color: white;
 }
 
 textarea {
@@ -388,4 +389,124 @@ select.input-item {
 
 .close-button {
   color: #8e2de2;
+}
+
+/* habit page */
+
+.habit-container {
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #8e2de2;
+  border-radius: 20px;
+  box-sizing: border-box;
+  padding: 20px;
+  width: 100%;
+
+}
+/* calendar control */
+.calendar-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 20px;
+}
+
+.btn{
+  background: none;
+  border: none;
+  color: white;
+}
+
+.btn:hover {
+  color: #8e2de2;
+}
+
+/* habit control */
+.habit-controls {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+  /* Remove overflow-x: auto; to avoid scroll */
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  
+  box-sizing: border-box;
+  flex-wrap: wrap;   /* Allow wrapping to next line */
+  min-width: 0;      /* Prevent flex overflow */
+}
+
+.cell {
+  flex: 1 1 32px;    /* Allow shrinking, basis = 32px minimum width */
+  padding: 6px;
+  text-align: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 32px;   /* Minimum width for cells */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label-cell, .streak-label {
+  flex: 0 0 120px;   /* fixed width */
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  font-size: 20px;
+}
+
+.label-cell {
+  text-align: left; /* keep left aligned */
+  justify-content: flex-start; /* aligns text left inside flex */
+}
+
+.streak-label {
+  text-align: center;
+}
+
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}
+
+.custom-checkbox .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #ddd;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.custom-checkbox input:checked + .checkmark {
+  background-color: #8e2de2;
+}
+.day-number {
+  font-size: 18px;
+}
+
+.day-letter {
+  color: #6e6e6e;
+}
+
+.hot-streak {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.normal-streak {
+  background-color: #ffeaa7;
+  color: #090909;
 }
