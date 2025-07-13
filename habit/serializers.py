@@ -9,8 +9,8 @@ class HabitSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields =['user']
 
+
 class HabitRecordSerializer(serializers.ModelSerializer):
     class Meta:
-        model=HabitRecord
-        fields ="__all__"
-        read_only_fields =['date']
+        model = HabitRecord
+        fields = '__all__'

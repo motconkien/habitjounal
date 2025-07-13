@@ -6,6 +6,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import date,timedelta
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import AllowAny
+from .utils import streak
+
 
 
 # Create your views here.
@@ -28,10 +31,9 @@ class HabitViewset(viewsets.ModelViewSet):
             raise PermissionDenied("You have loggin to create Habit.")
         return serializer.save(user=self.request.user)
     
-    #add streak calculation 
-    @action(detail=True, methods=['GET'])
-    def streak(self,request, pk = None):
-        habit = self.get_object() #automatically take habit by pk
+    #supporter
+    def streak(self,habit):
+  
         today = date.today()
         streak = 0
 
@@ -47,7 +49,32 @@ class HabitViewset(viewsets.ModelViewSet):
                     break
             except Exception as e:
                 break
-        return Response({"habit": habit.name, "streak": streak})
+        return streak
+    
+    @action(detail=False, methods=['get'], url_path='records-summary')
+    def records_summary(self, request):
+        habits = self.get_queryset()
+        summary = []
+
+        for habit in habits:
+            records = HabitRecord.objects.filter(habit=habit)
+            record_dict = {
+                r.date.isoformat(): r.is_completed for r in records
+            }
+            streak = self.streak(habit)
+
+            summary.append({
+                "id": habit.id,
+                "name": habit.name,
+                "records": record_dict,
+                "streak": streak
+            })
+
+        return Response(summary)
+    
+    @action(detail=False, methods=['get'], url_path='frequency-choices')
+    def frequency_choices(self, request):
+        return Response(self.serializer_class.Meta.model.FREQUENCY_CHOICES)
 
 
 class HabitRecordViewSet(viewsets.ModelViewSet):
@@ -77,3 +104,4 @@ class HabitRecordViewSet(viewsets.ModelViewSet):
         if HabitRecord.objects.filter(habit=habit, date=date).exists():
             raise serializer.ValidationError("This habit has already been marked for this date.")
         serializer.save()
+
