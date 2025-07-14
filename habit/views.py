@@ -8,6 +8,7 @@ from datetime import date,timedelta
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny
 from .utils import streak
+from rest_framework import status
 
 
 
@@ -38,23 +39,21 @@ class HabitViewset(viewsets.ModelViewSet):
         streak = 0
 
         #check backward day by day 
-        day = today
+        today_record = HabitRecord.objects.filter(habit=habit, date=today).first()
+        day = today if today_record and today_record.is_completed else today - timedelta(days=1)
         while True:
-            try:
-                record = HabitRecord.objects.get(habit=habit,date=day)
-                if record.is_completed:
-                    streak +=1 
-                    day -= timedelta(days=1)
-                else:
-                    break
-            except Exception as e:
+            record = HabitRecord.objects.filter(habit=habit, date=day).first()
+            if not record or not record.is_completed:
                 break
+            streak += 1
+            day -= timedelta(days=1)
         return streak
     
     @action(detail=False, methods=['get'], url_path='records-summary')
     def records_summary(self, request):
         habits = self.get_queryset()
         summary = []
+
 
         for habit in habits:
             records = HabitRecord.objects.filter(habit=habit)
@@ -63,14 +62,63 @@ class HabitViewset(viewsets.ModelViewSet):
             }
             streak = self.streak(habit)
 
+            #calculate the consistency
+            today = date.today()
+
+            records_completed = HabitRecord.objects.filter(habit=habit, is_completed=True).count()
+            if habit.frequency == 'daily':
+                total = (today - habit.created_at).days + 1
+            elif habit.frequency == 'weekly':
+                total = ((today - habit.created_at).days // 7) + 1
+            elif habit.frequency == 'monthly':
+                total = (today.year - habit.created_at.year) * 12 + (today.month - habit.created_at.month) + 1
+            else:
+                total = 0
+
+            consistency = records_completed/total if total > 0 else 0
             summary.append({
                 "id": habit.id,
                 "name": habit.name,
                 "records": record_dict,
-                "streak": streak
+                "streak": streak,
+                "consistency": consistency
             })
 
         return Response(summary)
+    
+    @action(detail=False, methods=['get'], url_path='habit-statistic')
+    def habit_statistics(self,request):
+        habits = self.get_queryset()
+        stats = {
+        'total_habits': Habit.objects.filter(user=self.request.user).count(),
+        'daily': {'number_habits': 0, 'completed': 0, 'total': 0, 'percentage': 0},
+        'weekly': {'number_habits': 0,'completed': 0, 'total': 0, 'percentage': 0},
+        'monthly': {'number_habits': 0,'completed': 0, 'total': 0, 'percentage': 0},
+    }
+        today = date.today()
+
+        for habit in habits:
+            records_completed = HabitRecord.objects.filter(habit=habit, is_completed=True).count()
+
+            if habit.frequency == 'daily':
+                total = (today - habit.created_at).days + 1
+            elif habit.frequency == 'weekly':
+                total = ((today - habit.created_at).days // 7) + 1
+            elif habit.frequency == 'monthly':
+                total = (today.year - habit.created_at.year) * 12 + (today.month - habit.created_at.month) + 1
+            else:
+                total = 0
+
+            stats[habit.frequency]['total'] += total
+            stats[habit.frequency]['completed'] += records_completed
+        for freq in ['daily', 'weekly', 'monthly']:
+            freq_total = stats[freq]['total']
+            freq_completed = stats[freq]['completed']
+            stats[freq]['percentage'] = round(freq_completed / freq_total * 100, 2) if freq_total > 0 else 0
+            stats[freq]['number_habits'] = Habit.objects.filter(user=self.request.user,frequency=freq).count()
+            # stats[habit.frequency]['percentage'] = round(records_completed/total,2)*100 if total > 0 else 0
+        return Response(stats)
+
     
     @action(detail=False, methods=['get'], url_path='frequency-choices')
     def frequency_choices(self, request):
@@ -97,11 +145,30 @@ class HabitRecordViewSet(viewsets.ModelViewSet):
             return
         habit = serializer.validated_data['habit']
         date = serializer.validated_data['date']
+        is_completed = self.request.data.get('is_completed', True)
 
         if habit.user != self.request.user:
             raise PermissionDenied("You cannot add record to a habit that is not yours.")
+        
+        if not habit or not date:
+            return Response({"detail": "habit and date are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if HabitRecord.objects.filter(habit=habit, date=date).exists():
-            raise serializer.ValidationError("This habit has already been marked for this date.")
-        serializer.save()
+        try:
+            record = HabitRecord.objects.get(habit_id=habit, date=date)
+            if record.habit.user != self.request.user:
+                raise PermissionDenied("This record is not yours.")
+            # Update existing
+            record.is_completed = is_completed
+            record.save()
+            serializer = HabitRecordSerializer(record)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except HabitRecord.DoesNotExist:
+            # Create new
+            serializer = HabitRecordSerializer(data=self.request.data)
+            serializer.is_valid(raise_exception=True)
+            habit_obj = serializer.validated_data['habit']
+            if habit_obj.user != self.request.user:
+                raise PermissionDenied("You cannot add record to a habit that is not yours.")
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
