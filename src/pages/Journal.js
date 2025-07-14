@@ -62,7 +62,7 @@ const handleAddJournal = async (e) => {
     //clear form 
     setContent('');
     setTitle('');
-    setMood('');
+    // setMood('');
     setShowModal(false);
     setSelectedJournal(null)
   };
