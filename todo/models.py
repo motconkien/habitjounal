@@ -17,7 +17,7 @@ class TaskEntry(models.Model):
     date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
     task_title = models.CharField(max_length=255)
-    task_content = models.TextField()
+    task_content = models.TextField(null=True)
     is_completed = models.BooleanField(default=False)
 
     def __str__(self):
