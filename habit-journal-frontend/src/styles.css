@@ -1,0 +1,714 @@
+/* styles.css */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(#0f0f0f, #1a1a1a);
+  /* display: flex;
+  justify-content: center;
+  align-items: center; */
+  color: white;
+}
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(#0f0f0f, #1a1a1a);
+  color: white;
+}
+
+.login-container {
+  background: rgba(15, 13, 16, 0.05);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.58);
+  width: 400px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-container h2 {
+  font-size: xx-large;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 12px 16px;
+  /* tạo khoảng cách bên trong */
+  font-size: 16px;
+  /* làm chữ to hơn */
+  margin-bottom: 16px;
+  /* tạo khoảng cách giữa các ô */
+  border-radius: 8px;
+  /* bo góc */
+  border: 1px solid #505050;
+  /* viền nhẹ */
+  box-sizing: border-box;
+  /* để padding không làm phình to width */
+  background: rgba(96, 96, 96, 0.1);
+  color: white;
+  outline: none;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 12px 16px;
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 20px;
+}
+
+.login-container a {
+  color: rgb(182, 102, 252);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.login-container a:hover {
+  text-decoration: underline;
+}
+
+.login-container p {
+  font-size: 16px;
+}
+
+/* sidebar  */
+/* app-container layout */
+.sidebar {
+  width: 250px;
+  background-color: #1f1f1f;
+  height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 20px;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  margin-top: 8px;
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: background-color 0.3s, border-left-color 0.3s;
+}
+
+.menu-item:hover {
+  background-color: #333;
+}
+
+.menu-item.active {
+  background-color: #141414;
+  border-left-color: #8e2de2;
+}
+
+.menu-item .icon {
+  margin-right: 16px;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  color: white;
+  padding: 15px 20px 15px 22px;
+  cursor: pointer;
+  margin-top: 16px;
+  font-size: 20px;
+  border-top: 1px solid #333;
+}
+
+.logout-button:hover {
+  background-color: #8e2de2;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  /* full viewport height */
+}
+
+.sidebar-wrapper {
+  width: 250px;
+  /* fixed sidebar width */
+  background-color: #222;
+  /* example color */
+  color: white;
+  /* optional: scroll if content overflows */
+  overflow-y: auto;
+}
+
+.main-content {
+  flex: 1;
+  /* take remaining space */
+  padding: 20px;
+  background-color: #121212;
+  /* or your desired bg */
+  color: white;
+  overflow-y: auto;
+}
+
+
+/* Journal CSS */
+.journal-page, .habit-page, .todo-page {
+  padding: 20px;
+  max-width: 100%;
+}
+
+.add-btn {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 10px 15px;
+  font-size: 20px;
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.journal-list, .projects-list {
+  margin-top: 8px;
+  display: grid;
+  /* grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); */
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  justify-content: start;
+
+}
+
+.journal-card, .project-card{
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #5c5c5c;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: rgba(96, 96, 96, 0.3);
+  box-shadow: 0 4px 12px rgba(193, 193, 193, 0.128);      
+  min-height: 120px;
+  color: white;
+}
+
+/* Header section: title + date grouped together */
+.journal-card .header, .project-card .header {
+  margin-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.journal-card h3, .project-card h3 {
+  margin: 0;
+  font-size: 18px;
+  padding-bottom: 8px;
+}
+
+.journal-card .date {
+  font-size: 1rem;
+  color: gray;
+  margin-top: 4px;
+}
+
+.journal-card .content {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  flex: 1;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Buttons always at the bottom */
+.journal-card .actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.journal-card button {
+  gap:12px
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  color: #333;
+}
+
+.modal-content {
+  background: #1f1f1f;
+  padding: 24px;
+  border: 1px solid rgba(142, 45, 226, 0.3);
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;   
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  color: #ffffff;
+}
+
+.actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.actions button {
+  padding: 10px 16px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  width: 120px;
+}
+
+.actions button:first-child {
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  color: white;
+}
+
+/* Danger button (Delete) */
+.actions button:nth-child(2) {
+  color: rgb(255, 255, 255);
+  border: 1px solid #6e6e6e;
+  background: rgba(96, 96, 96, 0.1);
+}
+
+/* journal - create new one */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: white;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.input-item {
+  box-sizing: border-box;
+  height: 36px;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #fefefea2;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.3s;
+  background-color: #141414b3;
+  color: white;
+  
+}
+
+textarea {
+  min-height: 400px;
+  height: auto;
+}
+
+select.input-item {
+  appearance: none;           /* Remove native style */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  border: 1px solid #ccc;
+  border-radius: 6px;
+
+  font-size: 16px;
+  background-color: #141414b3;
+  color: white;
+  box-shadow: none;           /* Remove inner shadow */
+  background-image: none;     /* Remove dropdown arrow */
+  margin-bottom: 12px;
+  min-height: 45px;
+}
+
+
+.input-item:focus {
+  border-color: #8e2de2;
+}
+
+.close-button {
+  color: #8e2de2;
+}
+
+/* habit page */
+
+.habit-container {
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #8e2de2;
+  border-radius: 20px;
+  box-sizing: border-box;
+  padding: 20px;
+  width: 100%;
+
+}
+/* calendar control */
+.calendar-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 20px;
+  box-sizing: border-box;
+}
+
+.btn{
+  background: none;
+  border: none;
+  color: white;
+}
+
+.btn:hover {
+  color: #8e2de2;
+}
+
+/* habit control */
+.habit-controls {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+  /* Remove overflow-x: auto; to avoid scroll */
+  overflow-x: auto;
+  scrollbar-width: thin; 
+  -webkit-overflow-scrolling: touch; /* Smooth on iOS */
+}
+
+.habit-controls::-webkit-scrollbar {
+  height: 6px;
+}
+
+.habit-controls::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap:6px;
+  box-sizing: border-box;
+  /* flex-wrap: wrap;   Allow wrapping to next line */
+  min-width: 0;      /* Prevent flex overflow */
+  
+}
+
+.cell {
+  /* flex: 1 1 32px;    Allow shrinking, basis = 32px minimum width */
+  flex: 1;
+  padding: 6px;
+  text-align: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 32px;   /* Minimum width for cells */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.label-cell, .streak-label {
+  flex: 0 0 auto;   /* fixed width */
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  font-size: 20px;
+  position: sticky;
+  z-index: 50;
+}
+
+.label-cell {
+  text-align: left; /* keep left aligned */
+  justify-content: flex-start; /* aligns text left inside flex */
+  left: 0;
+  background-color: #141414;
+  height: 100%;
+  text-align: left;
+}
+
+.label-cell .filler {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background-color: #141414;
+}
+
+
+.streak-label {
+  text-align: center;
+  right: 0;
+}
+
+
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  /* z-index: 1; */
+}
+
+.custom-checkbox .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #434343;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.custom-checkbox input:checked + .checkmark {
+  background-color: #8e2de2;
+}
+
+.day-number {
+  font-size: 18px;
+}
+
+.day-letter {
+  color: #6e6e6e;
+}
+
+.hot-streak {
+  background-color: #6211a8;
+  color: white;
+}
+
+.normal-streak {
+  background-color: #dbb1ffd5;
+  color: #090909;
+}
+
+.habit-items {
+  margin-bottom: 12px;
+}
+
+.frequency-options {
+  display: flex;
+  gap: 20px; 
+}
+
+.frequency-options input[type="radio"] {
+  transform: scale(1.5);  
+  margin-right: 8px;      
+  cursor: pointer;
+  accent-color: #6211a8;
+}
+
+.habit-card-lists {
+  display: flex;
+  margin-bottom: 24px;
+  gap: 20px;
+  
+}
+
+.habit-card {
+  flex: 1;
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid #8e2de2;
+  border-radius: 20px;
+  align-items: center;
+  justify-items: center;
+}
+
+.habit-card-two-column {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  gap: 16px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.habit-card-sub {
+  flex: 1;
+  text-align: center;
+  background: rgba(96, 96, 96, 0.3);
+  box-shadow: 0 4px 2px rgba(244, 244, 244, 0.2);
+  padding: 16px;
+  border-radius: 10px;
+  transition: transform 0.2s ease;
+  justify-content: center;
+  align-items: center;
+}
+
+.habit-card-sub:hover {
+  transform: scale(1.03);
+  background: #000000;
+}
+
+.habit-label {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  /* margin-bottom: 6px; */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  
+}
+
+.habit-value {
+  font-size: 80px;
+  font-weight: bold;
+  color: #8e2de2;
+  margin: 0;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.header-row {
+  display: grid;
+  grid-auto-rows: 30px;
+  align-items: center;
+  text-align: center;
+}
+
+/* todo page */
+.switch-tabs button {
+  padding: 8px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.switch-tabs button.active {
+  border-bottom: 3px solid #8e2de2;
+  color: #ffffff;
+}
+
+.projects-table,
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+}
+
+.projects-table th, .projects-table td,
+.tasks-table th, .tasks-table td {
+  padding: 12px;
+  border-bottom: 1px solid #666;
+  text-align: left;
+}
+
+
+.progress-bar-wrapper {
+  position: relative;
+  background: #333;
+  border-radius: 4px;
+  height: 12px;
+  width: 100%;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #dbb1ffd5;
+  border-radius: 4px;
+}
+
+/* .progress-bar-wrapper span {
+  font-size: 0.8rem;
+  margin-left: 8px;
+  color: #ccc;
+} */
+.custom-checkbox-todo {
+  width: 24px;
+  height: 24px;
+  transform: scale(1.5);
+  border: 2px solid white;
+  border-radius: 4px;
+  background-color: #444; /* background before checked */
+  cursor: pointer;
+  /* border: 2px solid white; */
+}
+
+.custom-checkbox-todo:checked {
+  accent-color: #8e2de2; /* purple checkmark color */
+  background-color: #8e2de2; 
+}
+
