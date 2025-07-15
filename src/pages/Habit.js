@@ -93,12 +93,13 @@ export default function Habit() {
           description:habitdes,
           frequency:habitfreq
         })
-        setSelectedHabit(prev => ({
-          ...prev,
-          name: habitname,
-          description: habitdes,
-          frequency: habitfreq
-        }));
+        // setSelectedHabit(prev => ({
+        //   ...prev,
+        //   name: habitname,
+        //   description: habitdes,
+        //   frequency: habitfreq
+        // }));
+        
       } else {
         await API.post('habit/', {
         name: habitname,
@@ -111,7 +112,7 @@ export default function Habit() {
     catch (err) {
       console.error('Failed to create habit:', err);
     }
-
+    closeModal();
     //clear form 
     setHabitName('');
     setDescription('');
@@ -126,8 +127,8 @@ export default function Habit() {
       fetchFrequencychoice();
       return res
     } catch (err) {
-      console.error('Failed to delete habit:', err);
-      alert('Failed to delete habit. Please try again.');
+      console.error('Failed to get habit:', err);
+      alert('Failed to get habit. Please try again.');
     }
   };
 
@@ -167,6 +168,7 @@ export default function Habit() {
   //close model
   const closeModal = () => {
     setSelectedHabit(null);
+    setShowModal(false);
   }
 
   //handle edit 
