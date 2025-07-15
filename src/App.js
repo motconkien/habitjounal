@@ -42,8 +42,55 @@ function App() {
   setUsername(storedName);
   }, [isLoggedIn]); // update username when login state changes
   if (!authChecked) {
-      return <div>Loading...</div>;
-    }
+    return(
+      <Router>
+        <Routes>
+
+          {/* AUTH ROUTES */}
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <div className="login-wrapper">
+                  <div className="login-container">
+                    <Login onLogin={handleLogin} />
+                    <p>
+                      Don't have an account?{' '}
+                      <Link to="/register" style={{ cursor: 'pointer' }}>
+                        Register
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <div className="login-wrapper">
+                  <div className="login-container">
+                    <Register />
+                    <p>
+                      Already have an account?{' '}
+                      <Link to="/login" style={{ cursor: 'pointer' }}>
+                        Login
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              )
+            }
+          />
+      </Routes>
+      </Router>
+    );
+  }
   return (
     <Router>
       <Routes>

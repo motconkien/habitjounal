@@ -34,6 +34,12 @@ export default function Habit() {
   }
   const dates = getDatesForMonth(currentDate);
 
+  //handle grid column
+  const numDays = dates.length; // 30 or 31 or any
+  const columnStyle = {
+    gridTemplateColumns: `120px repeat(${numDays}, 1fr) 120px`
+  };
+
   const fetchSummaryRecord = async () => {
     try {
       const res = await API.get('habit/records-summary/');
@@ -81,11 +87,25 @@ export default function Habit() {
       return;
     }
     try {
-      await API.post('habit/', {
+      if (selectedHabit) {
+        await API.put('habit/' + selectedHabit.id+"/",{
+          name:habitname,
+          description:habitdes,
+          frequency:habitfreq
+        })
+        setSelectedHabit(prev => ({
+          ...prev,
+          name: habitname,
+          description: habitdes,
+          frequency: habitfreq
+        }));
+      } else {
+        await API.post('habit/', {
         name: habitname,
         description: habitdes,
         frequency: habitfreq,
       })
+      }
     }
 
     catch (err) {
@@ -103,8 +123,8 @@ export default function Habit() {
     try {
       const res = await API.get('habit/' + HabitId + "/");
       setSelectedHabit(res);
+      fetchFrequencychoice();
       return res
-      // fetchJournals();
     } catch (err) {
       console.error('Failed to delete habit:', err);
       alert('Failed to delete habit. Please try again.');
@@ -221,6 +241,7 @@ export default function Habit() {
 
 
 
+
   return (
     <div className="habit-page">
       <div className="habit-header">
@@ -228,6 +249,7 @@ export default function Habit() {
         <button className="add-btn" onClick={handleOpenModal}>New Habit</button>
       </div>
 
+      {/* habit statistics */}
       <div className='habit-statistic'>
         <div className='habit-card-lists'>
           <div className='habit-card'>
@@ -298,7 +320,8 @@ export default function Habit() {
           </div>
         </div>
       </div>
-
+          
+      {/* habit tracker */}
       <div className="habit-container">
         {/* Month Navigation */}
         <div className="calendar-controls">
@@ -311,9 +334,9 @@ export default function Habit() {
           </button>
         </div>
 
-        <div className='habit-controls'>
+        <div className='habit-controls' >
           {/* Day of week row */}
-          <div className="row header-row">
+          <div className="row header-row" style={columnStyle}>
             <div className="cell label-cell" style={{ gridRow: 'span 2' }}>Habit</div>
             {dates.map((d) => (
               <div key={d.date} className="cell day-letter">{d.dayLetter}</div>
