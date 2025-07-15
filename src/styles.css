@@ -188,7 +188,7 @@ body,
 
 
 /* Journal CSS */
-.journal-page, .habit-page {
+.journal-page, .habit-page, .todo-page {
   padding: 20px;
   max-width: 100%;
 }
@@ -205,16 +205,17 @@ body,
   cursor: pointer;
 }
 
-.journal-list {
+.journal-list, .projects-list {
   margin-top: 8px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  /* grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); */
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   justify-content: start;
 
 }
 
-.journal-card {
+.journal-card, .project-card{
   display: flex;
   flex-direction: column;
   border: 1px solid #5c5c5c;
@@ -227,12 +228,12 @@ body,
 }
 
 /* Header section: title + date grouped together */
-.journal-card .header {
+.journal-card .header, .project-card .header {
   margin-bottom: 12px;
   margin-bottom: 12px;
 }
 
-.journal-card h3 {
+.journal-card h3, .project-card h3 {
   margin: 0;
   font-size: 18px;
   padding-bottom: 8px;
@@ -642,3 +643,72 @@ select.input-item {
   align-items: center;
   text-align: center;
 }
+
+/* todo page */
+.switch-tabs button {
+  padding: 8px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.switch-tabs button.active {
+  border-bottom: 3px solid #8e2de2;
+  color: #ffffff;
+}
+
+.projects-table,
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+}
+
+.projects-table th, .projects-table td,
+.tasks-table th, .tasks-table td {
+  padding: 12px;
+  border-bottom: 1px solid #666;
+  text-align: left;
+}
+
+
+.progress-bar-wrapper {
+  position: relative;
+  background: #333;
+  border-radius: 4px;
+  height: 12px;
+  width: 100%;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #dbb1ffd5;
+  border-radius: 4px;
+}
+
+/* .progress-bar-wrapper span {
+  font-size: 0.8rem;
+  margin-left: 8px;
+  color: #ccc;
+} */
+.custom-checkbox-todo {
+  width: 24px;
+  height: 24px;
+  transform: scale(1.5);
+  border: 2px solid white;
+  border-radius: 4px;
+  background-color: #444; /* background before checked */
+  cursor: pointer;
+  /* border: 2px solid white; */
+}
+
+.custom-checkbox-todo:checked {
+  accent-color: #8e2de2; /* purple checkmark color */
+  background-color: #8e2de2; 
+}
+
