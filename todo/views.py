@@ -23,6 +23,8 @@ class ProjectEntryViewSet(viewsets.ModelViewSet):
         if not self.request.user.is_authenticated:
             raise PermissionDenied("You have to log in to create project")
         return serializer.save(user=self.request.user)
+    
+    
 
 class TaskEntryViewSet(viewsets.ModelViewSet):
     serializer_class = TaskEntrySerializer
