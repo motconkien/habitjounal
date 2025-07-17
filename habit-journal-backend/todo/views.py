@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from .models import TaskEntry, ProjectEntry
-from .serializers import TaskEntrySerializer, ProjectEntrySerializer
+from .serializers import TaskEntrySerializer, ProjectEntrySerializer, TaskUpdateSerializer
 from rest_framework.exceptions import PermissionDenied
 
 # Create your views here.
@@ -27,7 +27,7 @@ class ProjectEntryViewSet(viewsets.ModelViewSet):
     
 
 class TaskEntryViewSet(viewsets.ModelViewSet):
-    serializer_class = TaskEntrySerializer
+    serializer_class = TaskEntrySerializer #default
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -40,7 +40,12 @@ class TaskEntryViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(project__id=project_id)
         return queryset
     
-    def perform_create(self, serializer):
+    def get_serializer_class(self): #if action is update, let take the updateserializer else the taskentry
+        if self.action in ['update','partial_update']:
+            return TaskUpdateSerializer
+        return TaskEntrySerializer
+    
+    def perform_create(self, serializer): #post request
         if getattr(self,'swagger_fake_view', False):
             return 
         if not self.request.user.is_authenticated:

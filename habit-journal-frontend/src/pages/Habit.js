@@ -242,8 +242,6 @@ export default function Habit() {
   };
 
 
-
-
   return (
     <div className="habit-page">
       <div className="habit-header">

@@ -29,3 +29,5 @@ class HabitRecordSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("You cannot modify records that are not yours.")
 
         return data
+
+

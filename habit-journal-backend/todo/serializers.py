@@ -41,3 +41,11 @@ class TaskEntrySerializer(serializers.ModelSerializer):
         model = TaskEntry
         fields= '__all__'
         read_only_fields =['date']
+
+class TaskUpdateSerializer(serializers.ModelSerializer):
+    is_completed = serializers.BooleanField(required=True)
+
+    class Meta:
+        model = TaskEntry
+        fields = ['is_completed']
+

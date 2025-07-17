@@ -35,13 +35,13 @@ export default function Todo() {
   const handleAddProject = async (e) => {
     e.preventDefault();
     // fetchProjectData();
-
+    const descToSend = projectDesc === '' ? 'Null' : projectDesc;
     try {
       let res;
       if (selectedProject) {
         res = await API.put('todo/projects/' + selectedProject.id + "/", {
           project_title: projectName,
-          description: projectDesc
+          description: descToSend
         })
         alert("Project updated successfully!");
         // closeModal();      
@@ -49,7 +49,7 @@ export default function Todo() {
 
         res = await API.post('todo/projects/', {
           project_title: projectName,
-          description: projectDesc
+          description: descToSend
 
         })
         alert("Project created successfully!");
@@ -69,21 +69,21 @@ export default function Todo() {
   const handlAddTask = async (e) => {
     e.preventDefault();
     const formattedDate = taskDue instanceof Date ? taskDue.toISOString().split('T')[0] : taskDue;
-
+    const descToSend = taskContent === '' ? 'Null' : taskContent;
     try {
       if (selectedTask) {
         return
       } else {
         console.log("Fuck:", {
           task_title: taskName,
-          task_content: taskContent,
+          task_content: descToSend,
           due_date: formattedDate,
           project: taskProject,
         });
 
         await API.post('todo/tasks/', {
           task_title: taskName,
-          task_content: taskContent,
+          task_content: descToSend,
           due_date: formattedDate,
           project: taskProject
         })
@@ -105,6 +105,7 @@ export default function Todo() {
     setProjectDesc(project.description);
     setSelectedProject(project);
     setShowModal(true);
+    setModalType('project');
   }
 
   //handle delete projects
@@ -179,7 +180,7 @@ export default function Todo() {
   const intervalId = setInterval(() => {
     fetchProjectData();
     fetchTaskData();
-  }, 10000); // 10 seconds
+  }, 500); // 10 seconds
 
   return () => clearInterval(intervalId); // clean up on unmount
 }, []);
@@ -255,7 +256,23 @@ export default function Todo() {
     }
   }
 
+  //handle checkbox 
+  const handleCheckbox = async (taskid,isComplete) => {
+    try {
+      await API.put('todo/tasks/' + taskid + "/", {
+        is_completed:isComplete,
+      })
+    } catch (err) {
+      console.error("Error when sending data: ", err)
+    }
+  }
 
+  //hanlde when having only project 
+  useEffect(() => {
+    if (projectData.length > 0 && !taskProject) {
+      setTaskProject(projectData[0].id);
+    }
+  }, [projectData, taskProject]); //only run when project or taskproject change 
 
   return (
     <div className="todo-page">
@@ -282,7 +299,7 @@ export default function Todo() {
           <div className='actions-control'>
             {/* Left: Add */}
             <div className="left-section">
-              <button className="add-btn" onClick={()=>handleOpenModal("project")}>
+              <button type="button" className="add-btn" onClick={()=>handleOpenModal("project")}>
                 New Project
               </button>
             </div>
@@ -380,7 +397,7 @@ export default function Todo() {
       {activeTab === 'tasks' && (
         <>
           <div className="add-buttons">
-            <button className="add-btn" onClick={()=>handleOpenModal("task")}>
+            <button type="button" className="add-btn" onClick={()=>handleOpenModal("task")}>
               New Task
             </button>
           </div>
@@ -425,6 +442,8 @@ export default function Todo() {
 
                         }}
                         inputProps={{ 'aria-label': `task-completed-${task.id}` }}
+                        onChange={(e)=>handleCheckbox(task.id,
+                                                      e.target.checked)}
                       />
                     </td>
                   </tr>
@@ -536,6 +555,7 @@ export default function Todo() {
                 </div>
 
                 <div className="task-project">
+                  
                   <label className="form-label" htmlFor="task-project-name">Project</label>
                   <select 
                     id='task-project-name'

@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from datetime import date,timedelta
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny
-from .utils import streak
 from rest_framework import status
 
 
@@ -140,35 +139,42 @@ class HabitRecordViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(habit__id=habit_id)
         return queryset
     
-    def perform_create(self, serializer):
-        if getattr(self, 'swagger_fake_view', False):
-            return
-        habit = serializer.validated_data['habit']
-        date = serializer.validated_data['date']
-        is_completed = self.request.data.get('is_completed', True)
+    #override function create new or update
+    def create(self, request, *args, **kwargs):
+        habit_id = request.data.get('habit')
+        if not habit_id:
+            return Response({"detail": "Habit is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            habit_obj = Habit.objects.get(id=habit_id)
+        except Habit.DoesNotExist:
+            return Response({"detail": "Habit not found."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if habit.user != self.request.user:
+        if habit_obj.user != request.user:
             raise PermissionDenied("You cannot add record to a habit that is not yours.")
         
-        if not habit or not date:
-            return Response({"detail": "habit and date are required."}, status=status.HTTP_400_BAD_REQUEST)
-
+        # Check if record exists for this habit and date to do upsert logic
+        date = request.data.get('date')
+        if not date:
+            return Response({"detail": "Date is required."}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            record = HabitRecord.objects.get(habit_id=habit, date=date)
-            if record.habit.user != self.request.user:
-                raise PermissionDenied("This record is not yours.")
-            # Update existing
-            record.is_completed = is_completed
-            record.save()
-            serializer = HabitRecordSerializer(record)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            record = HabitRecord.objects.get(habit=habit_obj, date=date)
+            record.delete()
+            return Response({'detail': 'Record unchecked (deleted).'}, status=status.HTTP_204_NO_CONTENT)
         except HabitRecord.DoesNotExist:
-            # Create new
-            serializer = HabitRecordSerializer(data=self.request.data)
-            serializer.is_valid(raise_exception=True)
-            habit_obj = serializer.validated_data['habit']
-            if habit_obj.user != self.request.user:
-                raise PermissionDenied("You cannot add record to a habit that is not yours.")
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+            return super().create(request,*args, **kwargs)
+        # try:
+            
+        #     if record.habit.user != request.user:
+        #         raise PermissionDenied("You cannot modify record that is not yours.")
+        #     # Update existing record
+        #     is_completed = request.data.get('is_completed', True)
+        #     record.is_completed = is_completed
+        #     record.save()
+        #     serializer = self.get_serializer(record)
+        #     return Response(serializer.data, status=status.HTTP_200_OK)
+        # except HabitRecord.DoesNotExist:
+        #     # Create new record normally
+        #     return super().create(request, *args, **kwargs)
+        
+       
