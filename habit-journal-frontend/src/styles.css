@@ -203,6 +203,7 @@ body,
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  height: 48px;
 }
 
 .journal-list, .projects-list {
@@ -618,13 +619,14 @@ select.input-item {
 }
 
 .habit-label {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: #ffffff;
   /* margin-bottom: 6px; */
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  
+  box-sizing: border-box;
+  text-wrap: nowrap;
 }
 
 .habit-value {
@@ -667,6 +669,7 @@ select.input-item {
   width: 100%;
   border-collapse: collapse;
   color: white;
+  table-layout: fixed;
 }
 
 .projects-table th, .projects-table td,
@@ -674,6 +677,9 @@ select.input-item {
   padding: 12px;
   border-bottom: 1px solid #666;
   text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
@@ -712,3 +718,109 @@ select.input-item {
   background-color: #8e2de2; 
 }
 
+.project-title:hover {
+  color:#dbb1ffd5 ;
+}
+
+.actions-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: top;
+  /* margin-bottom: 24px; */
+  gap: 12px;
+}
+
+.right-section {
+  padding: 10px 15px;
+  border-radius: 4px;
+  /* border: 1px solid #c1c1c158; */
+  display: block; /* Allow vertical stacking */
+  box-sizing: border-box;
+  margin-bottom: 0px; /* Space below for dropdown if open */
+  min-width: 152px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropdown-container {
+  width: 100%;
+  border: 1px solid #c2c2c255;
+  border-radius: 4px;
+}
+
+.dropdown-toggle {
+  appearance: none;
+  background-color: #141414;
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.filter-dropdown {
+  margin-top: 8px;
+  padding: 10px;
+  background: #141414;
+  /* border: 1px solid #ccc; */
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-dropdown label {
+  display: block;
+  margin-bottom: 8px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+}
+
+.filter-dropdown input[type="checkbox"] {
+  margin-right: 4px;
+  transform: scale(1.5);
+  accent-color: #8e2de2;
+}
+.react-datepicker__month-container {
+ background-color: #141414cc;
+}
+.react-datepicker__header, .react-datepicker__week{
+  background-color: #141414cc !important;
+}
+.react-datepicker__day-name,
+.react-datepicker__current-month, 
+.react-datepicker-time__header, 
+.react-datepicker-year-header, 
+.react-datepicker__week,
+.react-datepicker__day {
+  color: white !important;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #8e2de2 !important;
+  color: white;
+}
+
+.react-datepicker__day:not([aria-disabled="true"]):hover, 
+.react-datepicker__month-text:not([aria-disabled="true"]):hover, 
+.react-datepicker__quarter-text:not([aria-disabled="true"]):hover, 
+.react-datepicker__year-text:not([aria-disabled="true"]):hover {
+  background-color: #dbb1ffd5 !important;
+  color: white;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}

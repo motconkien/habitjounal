@@ -5,7 +5,9 @@ import API from "../api";
 import { dummyProjects, dummyTasks } from "../components/Dumpdata"
 import Checkbox from '@mui/material/Checkbox';
 import { FaSortUp, FaSortDown, FaSort } from 'react-icons/fa';
-import { Await } from "react-router-dom";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
 
 
 
@@ -16,12 +18,17 @@ export default function Todo() {
   const [taskName, setTaskName] = useState('');
   const [taskContent, setTaskContent] = useState('');
   const [taskDue, setTaskDue] = useState('');
+  const [taskProject, setTaskProject] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [taskData, setTaskData] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [titleError, setTitleError] = useState('');
-
+  const [selectedStatuses, setSelectedStatuses] = useState([]);
+  const STATUS_LIST = ['Planning', 'In Progress', 'Completed'];
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [modalType, setModalType] = useState(null);
 
 
   //handle add new project 
@@ -39,10 +46,10 @@ export default function Todo() {
         alert("Project updated successfully!");
         // closeModal();      
       } else {
-        
-          res = await API.post('todo/projects/', {
-            project_title: projectName,
-            description: projectDesc
+
+        res = await API.post('todo/projects/', {
+          project_title: projectName,
+          description: projectDesc
 
         })
         alert("Project created successfully!");
@@ -54,12 +61,44 @@ export default function Todo() {
 
     } catch (err) {
       console.error("Request failed:", err);
-
-      
       alert("Something went wrong. Try again.");
-      }
     }
+  }
 
+  //hanlde add new task 
+  const handlAddTask = async (e) => {
+    e.preventDefault();
+    const formattedDate = taskDue instanceof Date ? taskDue.toISOString().split('T')[0] : taskDue;
+
+    try {
+      if (selectedTask) {
+        return
+      } else {
+        console.log("Fuck:", {
+          task_title: taskName,
+          task_content: taskContent,
+          due_date: formattedDate,
+          project: taskProject,
+        });
+
+        await API.post('todo/tasks/', {
+          task_title: taskName,
+          task_content: taskContent,
+          due_date: formattedDate,
+          project: taskProject
+        })
+      } 
+      closeModal();
+      setTaskName('');
+      setTaskContent('');
+      setTaskDue('');
+      setTaskProject('');
+
+    } catch (err) {
+      console.error("Request failed:", err);
+      alert("Something went wrong. Try again.");
+    }
+  }
   //handle edit
   const handleEdit = (project) => {
     setProjectName(project.project_title);
@@ -106,12 +145,21 @@ export default function Todo() {
       alert('Falied to delete project. Please try again.')
     }
   }
-  const handleOpenModal = () => {
+  const handleOpenModal = (type) => {
+  const isProject = type.toLowerCase() === 'project';
+
+  setModalType(isProject ? 'project' : 'task');
+  if (isProject) {
     setProjectName('');
     setProjectDesc('');
-    setShowModal(true);
+  } else {
+    setTaskName('');
+    setTaskContent('');
+    setTaskDue('');
+    setTaskProject('');
   }
-  //handle add new tasks
+  setShowModal(true);
+};
 
   //handle fetch projects and new tasks
   const fetchProjectData = async () => {
@@ -125,16 +173,40 @@ export default function Todo() {
   }
 
   useEffect(() => {
+  fetchProjectData();
+  fetchTaskData();
+
+  const intervalId = setInterval(() => {
     fetchProjectData();
-    const intervalId = setInterval(() => {
-      fetchProjectData()
-    }, 500)
-  }, []);
+    fetchTaskData();
+  }, 10000); // 10 seconds
+
+  return () => clearInterval(intervalId); // clean up on unmount
+}, []);
+
 
   const findProjectName = (projectId) => {
-    const projectName = dummyProjects.find(p => p.id === projectId).title;
-    return projectName;
-  }
+  console.log('Looking for projectId:', projectId);
+  const project = projectData.find(p => p.id === projectId);
+  console.log('Found project:', project);
+  return project?.project_title || '';
+}
+
+
+  //enrich data
+  const enrichData = projectData.map((project) => {
+    const progress = Math.round((project.completed / project.tasks) * 100) || 0;
+    let status = 'Planning'
+    if (progress === 100)
+      status = 'Completed'
+    if (progress > 0) status = 'In Progress'
+
+    return {
+      ...project,
+      progress,
+      status
+    }
+  })
 
   //handle sorting 
   const [sortConfig, setSortConfig] = useState({
@@ -143,7 +215,7 @@ export default function Todo() {
   })
 
   //sort logic 
-  const sortedProjects = [...projectData].sort((a, b) => {
+  const sortedProjects = [...enrichData].sort((a, b) => {
     const { key, direction } = sortConfig;
     const aVal = a[key]?.toString().toLowerCase();
     const bVal = b[key]?.toString().toLowerCase();
@@ -164,12 +236,30 @@ export default function Todo() {
     });
   };
 
+  //handle filtered 
+  const filteredProject = sortedProjects.filter(project =>
+    selectedStatuses.length === 0 || selectedStatuses.includes(project.status)
+  )
+
+
+  // --------- Tasks--------//
+  //fetch data 
+  const fetchTaskData = async () => {
+    try {
+      const res = await API.get('todo/tasks/');
+      setTaskData(res.data)
+      console.log("Task data: ", res.data)
+    } catch (err) {
+      console.error("Fail to fetch data: ", err);
+      alert('Failed to fetch data. Please reload page.')
+    }
+  }
+
 
 
   return (
     <div className="todo-page">
       <h1>TodoList</h1>
-
 
       {/* switch tab */}
       <div class='switch-tabs'>
@@ -186,17 +276,57 @@ export default function Todo() {
 
       </div>
 
+
       {activeTab === 'projects' && (
         <>
-          <div className="add-buttons">
-            <button className="add-btn" onClick={handleOpenModal}>
-              New Project
-            </button>
+          <div className='actions-control'>
+            {/* Left: Add */}
+            <div className="left-section">
+              <button className="add-btn" onClick={()=>handleOpenModal("project")}>
+                New Project
+              </button>
+            </div>
+            {/* Right: Filter */}
+            <div className="right-section">
+              <div className="dropdown-container">
+                <div
+                  className="dropdown-toggle"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                >
+                  Filter by  ▼
+                </div>
+
+                {showDropdown && (
+                  <div className="filter-dropdown">
+                    {STATUS_LIST.map((status) => (
+                      <label key={status}>
+                        <input
+                          type="checkbox"
+                          value={status}
+                          checked={selectedStatuses.includes(status)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            if (checked) {
+                              setSelectedStatuses([...selectedStatuses, status]);
+                            } else {
+                              setSelectedStatuses(
+                                selectedStatuses.filter((s) => s !== status)
+                              );
+                            }
+                          }}
+                        />
+                        {status}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <table className="projects-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort('project_title')}>
+                <th onClick={() => handleSort('project_title')} style={{ width: '200px' }}>
                   Project Name{' '}
                   {sortConfig.key === 'project_title' ? (
                     sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
@@ -204,7 +334,7 @@ export default function Todo() {
                     <FaSort style={{ opacity: 0.5 }} />
                   )}
                 </th>
-                <th onClick={() => handleSort('description')}>
+                <th onClick={() => handleSort('description')} style={{ width: '40%' }}>
                   Description{' '}
                   {sortConfig.key === 'description' ? (
                     sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
@@ -212,7 +342,7 @@ export default function Todo() {
                     <FaSort style={{ opacity: 0.5 }} />
                   )}
                 </th>
-                <th onClick={() => handleSort('tasks')}>
+                <th onClick={() => handleSort('tasks')} style={{ width: '10%' }}>
                   Tasks{' '}
                   {sortConfig.key === 'tasks' ? (
                     sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
@@ -220,28 +350,23 @@ export default function Todo() {
                     <FaSort style={{ opacity: 0.5 }} />
                   )}
                 </th>
-                <th>Progress</th>
-                <th>Status</th>
+                <th style={{ width: '25%' }}>Progress</th>
+                <th style={{ width: '15%' }}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {sortedProjects.map((project) => {
-                const progress = Math.round((project.completed / project.tasks) * 100) || 0;
-                let status = 'Start';
-                if (progress === 100) status = 'Completed';
-                else if (progress > 0) status = 'In Progress';
-
+              {filteredProject.map((project) => {
                 return (
                   <tr key={project.id}>
-                    <td onClick={() => openModal(project.id)}>{project.project_title}</td>
+                    <td className="project-title" onClick={() => openModal(project.id)}>{project.project_title}</td>
                     <td>{project.description}</td>
                     <td>{project.tasks}</td>
                     <td>
                       <div className="progress-bar-wrapper">
-                        <div className="progress-bar" style={{ width: `${progress}%` }} />
+                        <div className="progress-bar" style={{ width: `${project.progress}%` }} />
                       </div>
                     </td>
-                    <td>{status}</td>
+                    <td>{project.status}</td>
                   </tr>
                 );
               })}
@@ -255,7 +380,7 @@ export default function Todo() {
       {activeTab === 'tasks' && (
         <>
           <div className="add-buttons">
-            <button className="add-btn">
+            <button className="add-btn" onClick={()=>handleOpenModal("task")}>
               New Task
             </button>
           </div>
@@ -263,24 +388,24 @@ export default function Todo() {
           <table className="tasks-table">
             <thead>
               <tr>
-                <th>Task Name</th>
-                <th>Project Name</th>
-                <th>Task Content</th>
-                <th>Created Date</th>
-                <th>Due Date</th>
-                <th>Status</th>
+                <th style={{ width: '200px' }}>Task Name</th>
+                <th style={{ width: '20%' }}>Project Name</th>
+                <th style={{ width: '30%' }}>Task Content</th>
+                <th style={{ width: '10%' }}>Created Date</th>
+                <th style={{ width: '10%' }}>Due Date</th>
+                <th style={{ width: '10%' }}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {dummyTasks.map((task) => {
+              {taskData.map((task) => {
                 const checked = task.is_completed === true || task.is_completed === 'true';
 
                 return (
                   <tr key={task.id}>
                     <td>{task.task_title}</td>
-                    <td>{findProjectName(task.projectId)}</td>
+                    <td>{findProjectName(task.project)}</td>
                     <td>{task.task_content}</td>
-                    <td>{task.created}</td>
+                    <td>{task.date}</td>
                     <td>{task.due_date}</td>
                     <td>
                       <Checkbox
@@ -310,6 +435,9 @@ export default function Todo() {
           </table>
         </>
       )}
+
+      {/* show list  */}
+
       {selectedProject && (
         <Modal onClose={closeModal}>
           <div className="modal-header">
@@ -335,51 +463,142 @@ export default function Todo() {
 
       {/* for new project */}
       {showModal && (
-        <Modal onClose={() => setShowModal(false)}>
-          <h3>Set new projects</h3>
-          <form onSubmit={handleAddProject} className="form-group">
-            {/* project name */}
-            <div className="project-items name">
-              <label className="form-label" htmlFor="project-name">Project Title</label>
-              <input
-                id="project-name"
-                className="input-item"
-                type="text"
-                value={projectName}
-                onChange={(e) => {                  
-                  setProjectName(e.target.value);
-                  const existed = projectData.some((proj) => proj.project_title.trim().toLowerCase() === e.target.value.trim().toLowerCase());
-                  if (existed) {
-                    setTitleError('Project title already exists.');
-                  } else {
-                    setTitleError('');
-                  }
-                }}
-                required />
-              {titleError && <p style={{ fontSize: '16px', color: 'red', marginTop: '0px' }} className="error-text">{titleError}</p>}
-            </div>
-            {/* project description */}
-            <div className="project-items description">
-              <label className="form-label" htmlFor="project-description">Project Description</label>
-              <textarea
-                id="project-description"
-                className="input-item"
-                value={projectDesc}
-                placeholder="Describe the project: purpose, details,..."
-                onChange={(e) => setProjectDesc(e.target.value)}
-              />
+        <div className="modal">
+          {modalType === 'project' && (
+            <Modal onClose={() => setShowModal(false)}>
+              <h3>Set new projects</h3>
+              <form onSubmit={handleAddProject} className="form-group">
+                {/* project name */}
+                <div className="project-items name">
+                  <label className="form-label" htmlFor="project-name">Project Title</label>
+                  <input
+                    id="project-name"
+                    className="input-item"
+                    type="text"
+                    value={projectName}
+                    onChange={(e) => {
+                      setProjectName(e.target.value);
+                      const existed = projectData.some((proj) => proj.project_title.trim().toLowerCase() === e.target.value.trim().toLowerCase());
+                      if (existed) {
+                        setTitleError('Project title already exists.');
+                      } else {
+                        setTitleError('');
+                      }
+                    }}
+                    required />
+                  {titleError && <p style={{ fontSize: '16px', color: 'red', marginTop: '0px' }} className="error-text">{titleError}</p>}
+                </div>
+                {/* project description */}
+                <div className="project-items description">
+                  <label className="form-label" htmlFor="project-description">Project Description</label>
+                  <textarea
+                    id="project-description"
+                    className="input-item"
+                    value={projectDesc}
+                    placeholder="Describe the project: purpose, details,..."
+                    onChange={(e) => setProjectDesc(e.target.value)}
+                  />
 
-            </div>
-            <div className="actions">
-              <button type="submit"  disabled={!!titleError} >Submit</button>
-              <button type="button" onClick={() => setShowModal(false)}>
-                Cancel
-              </button>
-            </div>
-          </form>
+                </div>
+                <div className="actions">
+                  <button type="submit" disabled={!!titleError} >Submit</button>
+                  <button type="button" onClick={() => setShowModal(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
 
-        </Modal>
+            </Modal>
+          )}
+          {/* {modalType === 'Task' &&} */}
+          {modalType === 'task' && (
+            <Modal onClose={() => setShowModal(false)}>
+              <h3>Set new task</h3>
+              <form className="form-group" onSubmit={handlAddTask}>
+                <div className="task-item name">
+                  <label className="form-label" htmlFor="task-name">Task Name</label>
+                  <input
+                    id='task-name'
+                    className="input-item"
+                    type="text"
+                    value={taskName}
+                    onChange={(e) => {
+                      setTaskName(e.target.value);
+                      const existed = taskData.some((task) => task.task_title.trim().toLowerCase() === e.target.value.trim().toLowerCase());
+                      if (existed) {
+                        setTitleError('Task title already exists.');
+                      } else {
+                        setTitleError('');
+                      }
+                    }}
+                    required/>
+                    {titleError && <p style={{ fontSize: '16px', color: 'red', marginTop: '0px' }} className="error-text">{titleError}</p>}
+                </div>
+
+                <div className="task-project">
+                  <label className="form-label" htmlFor="task-project-name">Project</label>
+                  <select 
+                    id='task-project-name'
+                    className="input-item"
+                    value={taskProject}
+                    onChange={(e) => setTaskProject(Number(e.target.value))}
+                    required
+                  >
+                    {projectData.map((project, index) => (
+                      <option key={index} value={project.id}>
+                        {project.project_title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="task-content">
+                    <label className="form-label">Description</label>
+                    <textarea
+                      className="input-item"
+                      value={taskContent}
+                      onChange={(e) => setTaskContent(e.target.value)}
+                    />
+                </div>
+
+                <div className="task-duedate">
+                  <label className="form-label">Deadline</label>
+                  <DatePicker
+                    className="input-item"
+                    selected={taskDue}
+                    onChange={(date) => setTaskDue(date)}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select date"
+                    // style={{ zIndex: 1000 }}
+                    customInput={
+                      <input
+                        style={{
+                          // backgroundColor: 'red',
+                          color: 'white',
+                          border: '1px solid #fefefea2',
+                          borderRadius: '4px',
+                          padding: '8px',
+                        }}
+                      />
+                    }
+                  />
+                </div>
+
+                <div className="actions">
+                  <button type="submit" disabled={!!titleError} >Submit</button>
+                  <button type="button" onClick={() => setShowModal(false)}>
+                    Cancel
+                  </button>
+                </div>
+
+              </form>
+            </Modal>
+          )}
+        </div>
+
+
       )}
+
     </div>
 
 
