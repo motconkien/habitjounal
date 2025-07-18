@@ -405,7 +405,7 @@ export default function Todo() {
                   className="dropdown-toggle"
                   onClick={() => setShowDropdown(!showDropdown)}
                 >
-                  Filter by  ▼
+                  Filter Status ▼
                 </div>
 
                 {showDropdown && (
@@ -494,7 +494,7 @@ export default function Todo() {
                   className="dropdown-toggle"
                   onClick={() => setShowDropdown(!showDropdown)}
                 >
-                  Filter by ▼
+                  Filter Status ▼
                 </div>
 
                 {showDropdown && (

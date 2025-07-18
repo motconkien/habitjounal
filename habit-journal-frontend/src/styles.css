@@ -403,6 +403,15 @@ select.input-item {
   color: #8e2de2;
 }
 
+.joural-statistic-card {
+  flex: 1;
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid #8e2de2;
+  border-radius: 20px;
+  align-items: center;
+  justify-items: center;
+}
 /* habit page */
 
 .habit-container {
@@ -573,7 +582,7 @@ select.input-item {
   accent-color: #6211a8;
 }
 
-.habit-card-lists {
+.habit-card-lists, .journal-statistic-card-lists {
   display: flex;
   margin-bottom: 24px;
   gap: 20px;
