@@ -29,6 +29,7 @@ export default function Todo() {
   const STATUS_LIST = ['Planning', 'In Progress', 'Completed'];
   const [showDropdown, setShowDropdown] = useState(false);
   const [modalType, setModalType] = useState(null);
+  const STATUS_TASK_LIST = ['Completed', 'Incompleted'];
 
 
   //handle add new project 
@@ -54,11 +55,10 @@ export default function Todo() {
         })
         alert("Project created successfully!");
       }
-      closeModal();
       setProjectName('');
       setProjectDesc('');
       setTitleError('');
-
+      closeModal('project');
     } catch (err) {
       console.error("Request failed:", err);
       alert("Something went wrong. Try again.");
@@ -72,14 +72,19 @@ export default function Todo() {
     const descToSend = taskContent === '' ? 'Null' : taskContent;
     try {
       if (selectedTask) {
-        return
-      } else {
-        console.log("Fuck:", {
+        await API.put('todo/tasks/' + selectedTask.id + "/", {
           task_title: taskName,
           task_content: descToSend,
           due_date: formattedDate,
-          project: taskProject,
-        });
+          is_completed: selectedTask.is_completed
+        })
+      } else {
+        // console.log("Fuck:", {
+        //   task_title: taskName,
+        //   task_content: descToSend,
+        //   due_date: formattedDate,
+        //   project: taskProject,
+        // });
 
         await API.post('todo/tasks/', {
           task_title: taskName,
@@ -87,8 +92,8 @@ export default function Todo() {
           due_date: formattedDate,
           project: taskProject
         })
-      } 
-      closeModal();
+      }
+      closeModal('task');
       setTaskName('');
       setTaskContent('');
       setTaskDue('');
@@ -100,12 +105,24 @@ export default function Todo() {
     }
   }
   //handle edit
-  const handleEdit = (project) => {
-    setProjectName(project.project_title);
-    setProjectDesc(project.description);
-    setSelectedProject(project);
-    setShowModal(true);
-    setModalType('project');
+  const handleEdit = (type, data) => {
+    console.log("Edit data: ", JSON.stringify(data))
+    if (type.trim().toLowerCase() === 'project') {
+      setProjectName(data.project_title);
+      setProjectDesc(data.description);
+      setSelectedProject(data);
+      setShowModal(true);
+      setModalType('project');
+    }
+    if (type.trim().toLowerCase() === 'task') {
+      setTaskName(data.task_title);
+      setTaskContent(data.task_content);
+      setTaskProject(findProjectName(data.project));
+      setTaskDue(data.due_date);
+      setShowModal(true);
+      setModalType('task');
+    }
+
   }
 
   //handle delete projects
@@ -116,29 +133,66 @@ export default function Todo() {
       return res;
 
     } catch (err) {
-      console.error("Failed to delete project: ", err);
+      console.error("Failed to get project: ", err);
 
       alert('Failed to get project data')
     }
   }
-  const openModal = async (projectId) => {
+
+  const handleTask = async (taskid) => {
     try {
-      const res = await handleProject(projectId);
-      setSelectedProject(res.data);
-      // setShowModal(true); 
+      const res = await API.get('todo/tasks/' + taskid + "/");
+      setSelectedTask(true)
+      return res
     } catch (err) {
-      console.error('Failed to open project modal: ', err)
+      console.error("Failed to get task: ", err);
+
+      alert('Failed to get task data')
     }
   }
-  //close model
-  const closeModal = () => {
-    setSelectedProject(null);
-    setShowModal(false);
-  }
-  const handleDelete = async (projectId) => {
+  const openModal = async (type, id) => {
+    let res;
     try {
-      await API.delete('todo/projects/' + projectId + '/');
+      setModalType(type);
+
+      if (type === 'project') {
+        res = await handleProject(id);
+        setSelectedProject(res.data);
+      } else if (type === 'task') {
+        res = await handleTask(id);
+        setSelectedTask(res.data);
+      }
+
+      console.log("Open modal: ", type, "     ", res.data);
+
+      // setShowModal(true);
+    } catch (err) {
+      console.error('Failed to open modal:', err);
+    }
+  };
+
+
+  //close model
+  const closeModal = (type) => {
+    if (type === 'project') {
       setSelectedProject(null);
+      setShowModal(false);
+    }
+    else if (type === 'task') {
+      setSelectedTask(null);
+      setShowModal(false)
+    }
+  }
+
+  const handleDelete = async (type, id) => {
+    try {
+      if (type === 'projects') {
+        await API.delete('todo/projects/' + id + '/');
+        setSelectedProject(null);
+      } else if (type === 'tasks') {
+        await API.delete('todo/tasks/' + id + '/');
+        setSelectedTask(null)
+      }
       alert("Deleted successuly")
 
     } catch (err) {
@@ -147,20 +201,20 @@ export default function Todo() {
     }
   }
   const handleOpenModal = (type) => {
-  const isProject = type.toLowerCase() === 'project';
+    const isProject = type.toLowerCase() === 'project';
 
-  setModalType(isProject ? 'project' : 'task');
-  if (isProject) {
-    setProjectName('');
-    setProjectDesc('');
-  } else {
-    setTaskName('');
-    setTaskContent('');
-    setTaskDue('');
-    setTaskProject('');
-  }
-  setShowModal(true);
-};
+    setModalType(isProject ? 'project' : 'task');
+    if (isProject) {
+      setProjectName('');
+      setProjectDesc('');
+    } else {
+      setTaskName('');
+      setTaskContent('');
+      setTaskDue('');
+      setTaskProject('');
+    }
+    setShowModal(true);
+  };
 
   //handle fetch projects and new tasks
   const fetchProjectData = async () => {
@@ -174,24 +228,24 @@ export default function Todo() {
   }
 
   useEffect(() => {
-  fetchProjectData();
-  fetchTaskData();
-
-  const intervalId = setInterval(() => {
     fetchProjectData();
     fetchTaskData();
-  }, 500); // 10 seconds
 
-  return () => clearInterval(intervalId); // clean up on unmount
-}, []);
+    const intervalId = setInterval(() => {
+      fetchProjectData();
+      fetchTaskData();
+    }, 500); // 10 seconds
+
+    return () => clearInterval(intervalId); // clean up on unmount
+  }, []);
 
 
   const findProjectName = (projectId) => {
-  console.log('Looking for projectId:', projectId);
-  const project = projectData.find(p => p.id === projectId);
-  console.log('Found project:', project);
-  return project?.project_title || '';
-}
+    console.log('Looking for projectId:', projectId);
+    const project = projectData.find(p => p.id === projectId);
+    console.log('Found project:', project);
+    return project?.project_title || '';
+  }
 
 
   //enrich data
@@ -215,15 +269,23 @@ export default function Todo() {
     direction: 'asc'
   })
 
-  //sort logic 
-  const sortedProjects = [...enrichData].sort((a, b) => {
-    const { key, direction } = sortConfig;
-    const aVal = a[key]?.toString().toLowerCase();
-    const bVal = b[key]?.toString().toLowerCase();
-    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
-    return 0;
-  })
+  //sort logic for the tasks and projects => combine
+  const sortByConfig = (data, sortConfig) => {
+    return [...data].sort((a, b) => {
+      const { key, direction } = sortConfig;
+      const aVal = a[key]?.toString().toLowerCase();
+      const bVal = b[key]?.toString().toLowerCase();
+
+      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+
+  const sortedProjects = sortByConfig(enrichData, sortConfig);
+  const sortedTasks = sortByConfig(taskData, sortConfig);
+
 
   const handleSort = (key) => {
     setSortConfig((prev) => {
@@ -242,6 +304,25 @@ export default function Todo() {
     selectedStatuses.length === 0 || selectedStatuses.includes(project.status)
   )
 
+  const filteredTasks = sortedTasks.filter((task) => {
+  //get status, maybe true or 'true' come from backend 
+  const isCompleted = task.is_completed === true || task.is_completed === 'true';
+  const isIncompleted = task.is_completed === false || task.is_completed === 'false';
+
+  // filter in an array
+  const showCompleted = selectedStatuses.includes('Completed');
+  const showIncompleted = selectedStatuses.includes('Incompleted');
+
+  if (selectedStatuses.length === 0) return true; // No filters → show all
+
+  if (showCompleted && isCompleted) return true;
+  if (showIncompleted && isIncompleted) return true;
+
+  return false;
+});
+
+
+  
 
   // --------- Tasks--------//
   //fetch data 
@@ -257,10 +338,13 @@ export default function Todo() {
   }
 
   //handle checkbox 
-  const handleCheckbox = async (taskid,isComplete) => {
+  const handleCheckbox = async (taskid, isComplete, task_title, due_date) => {
+
     try {
       await API.put('todo/tasks/' + taskid + "/", {
-        is_completed:isComplete,
+        task_title: task_title,
+        due_date: due_date,
+        is_completed: isComplete,
       })
     } catch (err) {
       console.error("Error when sending data: ", err)
@@ -273,6 +357,17 @@ export default function Todo() {
       setTaskProject(projectData[0].id);
     }
   }, [projectData, taskProject]); //only run when project or taskproject change 
+
+
+  //render sort icon 
+  const renderSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
+    } else {
+      return <FaSort style={{ opacity: 0.5 }} />
+    }
+  }
+
 
   return (
     <div className="todo-page">
@@ -299,7 +394,7 @@ export default function Todo() {
           <div className='actions-control'>
             {/* Left: Add */}
             <div className="left-section">
-              <button type="button" className="add-btn" onClick={()=>handleOpenModal("project")}>
+              <button type="button" className="add-btn" onClick={() => handleOpenModal("project")}>
                 New Project
               </button>
             </div>
@@ -344,28 +439,13 @@ export default function Todo() {
             <thead>
               <tr>
                 <th onClick={() => handleSort('project_title')} style={{ width: '200px' }}>
-                  Project Name{' '}
-                  {sortConfig.key === 'project_title' ? (
-                    sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
-                  ) : (
-                    <FaSort style={{ opacity: 0.5 }} />
-                  )}
+                  Project Name {renderSortIcon('project_title')}
                 </th>
                 <th onClick={() => handleSort('description')} style={{ width: '40%' }}>
-                  Description{' '}
-                  {sortConfig.key === 'description' ? (
-                    sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
-                  ) : (
-                    <FaSort style={{ opacity: 0.5 }} />
-                  )}
+                  Description {renderSortIcon('description')}
                 </th>
                 <th onClick={() => handleSort('tasks')} style={{ width: '10%' }}>
-                  Tasks{' '}
-                  {sortConfig.key === 'tasks' ? (
-                    sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
-                  ) : (
-                    <FaSort style={{ opacity: 0.5 }} />
-                  )}
+                  Tasks {renderSortIcon('task')}
                 </th>
                 <th style={{ width: '25%' }}>Progress</th>
                 <th style={{ width: '15%' }}>Status</th>
@@ -375,7 +455,7 @@ export default function Todo() {
               {filteredProject.map((project) => {
                 return (
                   <tr key={project.id}>
-                    <td className="project-title" onClick={() => openModal(project.id)}>{project.project_title}</td>
+                    <td className="project-title" onClick={() => openModal('project', project.id)}>{project.project_title}</td>
                     <td>{project.description}</td>
                     <td>{project.tasks}</td>
                     <td>
@@ -396,30 +476,89 @@ export default function Todo() {
 
       {activeTab === 'tasks' && (
         <>
-          <div className="add-buttons">
-            <button type="button" className="add-btn" onClick={()=>handleOpenModal("task")}>
-              New Task
-            </button>
+          {/* === Actions Bar === */}
+          <div className="actions-control">
+            <div className="left-section">
+              <button
+                type="button"
+                className="add-btn"
+                onClick={() => handleOpenModal("task")}
+              >
+                New Task
+              </button>
+            </div>
+
+            <div className="right-section">
+              <div className="dropdown-container">
+                <div
+                  className="dropdown-toggle"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                >
+                  Filter by ▼
+                </div>
+
+                {showDropdown && (
+                  <div className="filter-dropdown">
+                    {STATUS_TASK_LIST.map((status) => (
+                      <label key={status}>
+                        <input
+                          type="checkbox"
+                          value={status}
+                          checked={selectedStatuses.includes(status)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            if (checked) {
+                              setSelectedStatuses([...selectedStatuses, status]);
+                            } else {
+                              setSelectedStatuses(
+                                selectedStatuses.filter((s) => s !== status)
+                              );
+                            }
+                          }}
+                        />
+                        {status}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
+          {/* === Tasks Table === */}
           <table className="tasks-table">
             <thead>
               <tr>
-                <th style={{ width: '200px' }}>Task Name</th>
-                <th style={{ width: '20%' }}>Project Name</th>
-                <th style={{ width: '30%' }}>Task Content</th>
-                <th style={{ width: '10%' }}>Created Date</th>
-                <th style={{ width: '10%' }}>Due Date</th>
-                <th style={{ width: '10%' }}>Status</th>
+                <th onClick={() => handleSort('task_title')} style={{ width: '200px' }}>
+                  Task Name {renderSortIcon('task_title')}
+                </th>
+                <th onClick={() => handleSort('project')} style={{ width: '20%' }}>
+                  Project Name {renderSortIcon('project')}
+                </th>
+                <th onClick={() => handleSort('task_content')} style={{ width: '30%' }}>
+                  Task Content {renderSortIcon('task_content')}
+                </th>
+                <th onClick={() => handleSort('date')} style={{ width: '10%' }}>
+                  Created Date {renderSortIcon('date')}
+                </th>
+                <th onClick={() => handleSort('due_date')} style={{ width: '10%' }}>
+                  Due Date {renderSortIcon('due_date')}
+                </th>
+                <th onClick={() => handleSort('is_completed')} style={{ width: '10%' }}>
+                  Status {renderSortIcon('is_completed')}
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              {taskData.map((task) => {
+              {filteredTasks.map((task) => {
                 const checked = task.is_completed === true || task.is_completed === 'true';
 
                 return (
                   <tr key={task.id}>
-                    <td>{task.task_title}</td>
+                    <td className="task-title" onClick={() => openModal('task', task.id)}>
+                      {task.task_title}
+                    </td>
                     <td>{findProjectName(task.project)}</td>
                     <td>{task.task_content}</td>
                     <td>{task.date}</td>
@@ -439,39 +578,44 @@ export default function Todo() {
                           '&.Mui-checked': {
                             color: '#dbb1ffd5',
                           },
-
                         }}
                         inputProps={{ 'aria-label': `task-completed-${task.id}` }}
-                        onChange={(e)=>handleCheckbox(task.id,
-                                                      e.target.checked)}
+                        onChange={(e) =>
+                          handleCheckbox(
+                            task.id,
+                            e.target.checked,
+                            task.task_title,
+                            task.due_date
+                          )
+                        }
                       />
                     </td>
                   </tr>
                 );
-
               })}
             </tbody>
           </table>
         </>
       )}
 
+
       {/* show list  */}
 
       {selectedProject && (
-        <Modal onClose={closeModal}>
+        <Modal onClose={() => closeModal('project')}>
           <div className="modal-header">
             <h2>{selectedProject.project_title}</h2>
-            <FaTimes size={24} className="close-button" onClick={closeModal} />
+            <FaTimes size={24} className="close-button" onClick={() => closeModal('project')} />
           </div>
           <p>{selectedProject.description == '' ? 'Null' : selectedProject.description}</p>
           <p>Total Tasks: <em>{selectedProject.tasks}</em></p>
           <p>Completed tasks: <em>{selectedProject.completed}</em></p>
           <div className="actions">
-            <button onClick={() => handleEdit(selectedProject)}>
+            <button onClick={() => handleEdit('project', selectedProject)}>
               <FaEdit style={{ marginRight: 8 }} />
               Edit
             </button>
-            <button onClick={() => handleDelete(selectedProject.id)}>
+            <button onClick={() => handleDelete('projects', selectedProject.id)}>
               <FaTrash style={{ marginRight: 8 }} />
               Delete
             </button>
@@ -479,6 +623,30 @@ export default function Todo() {
 
         </Modal>
       )}
+
+      {selectedTask && (
+        <Modal onClose={() => closeModal('task')}>
+          <div className="modal-header">
+            <h2>{selectedTask.task_title}</h2>
+            <FaTimes size={24} className="close-button" onClick={() => closeModal('task')} />
+          </div>
+          <p>{findProjectName(selectedTask.project)}</p>
+          <p>{selectedTask.task_content == '' ? 'Null' : selectedTask.task_content}</p>
+          <p>Due date: <em>{selectedTask.due_date}</em></p>
+          <div className="actions">
+            <button onClick={() => handleEdit('task', selectedTask)}>
+              <FaEdit style={{ marginRight: 8 }} />
+              Edit
+            </button>
+            <button onClick={() => handleDelete('tasks', selectedTask.id)}>
+              <FaTrash style={{ marginRight: 8 }} />
+              Delete
+            </button>
+
+          </div>
+        </Modal>
+      )}
+
 
       {/* for new project */}
       {showModal && (
@@ -550,14 +718,14 @@ export default function Todo() {
                         setTitleError('');
                       }
                     }}
-                    required/>
-                    {titleError && <p style={{ fontSize: '16px', color: 'red', marginTop: '0px' }} className="error-text">{titleError}</p>}
+                    required />
+                  {titleError && <p style={{ fontSize: '16px', color: 'red', marginTop: '0px' }} className="error-text">{titleError}</p>}
                 </div>
 
                 <div className="task-project">
-                  
+
                   <label className="form-label" htmlFor="task-project-name">Project</label>
-                  <select 
+                  <select
                     id='task-project-name'
                     className="input-item"
                     value={taskProject}
@@ -573,12 +741,12 @@ export default function Todo() {
                 </div>
 
                 <div className="task-content">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      className="input-item"
-                      value={taskContent}
-                      onChange={(e) => setTaskContent(e.target.value)}
-                    />
+                  <label className="form-label">Description</label>
+                  <textarea
+                    className="input-item"
+                    value={taskContent}
+                    onChange={(e) => setTaskContent(e.target.value)}
+                  />
                 </div>
 
                 <div className="task-duedate">

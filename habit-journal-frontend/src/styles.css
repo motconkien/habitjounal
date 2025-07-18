@@ -718,7 +718,7 @@ select.input-item {
   background-color: #8e2de2; 
 }
 
-.project-title:hover {
+.project-title:hover, .task-title:hover {
   color:#dbb1ffd5 ;
 }
 

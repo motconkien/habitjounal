@@ -47,5 +47,5 @@ class TaskUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TaskEntry
-        fields = ['is_completed']
+        fields = ['task_title', 'task_content', 'due_date','is_completed']
 
