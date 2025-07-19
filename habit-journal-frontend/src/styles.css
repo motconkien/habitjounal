@@ -258,6 +258,9 @@ body,
   -webkit-box-orient: vertical;
 }
 
+.journal-card .mood {
+  padding-top: 10px;
+}
 /* Buttons always at the bottom */
 .journal-card .actions {
   margin-top: 10px;
@@ -412,6 +415,125 @@ select.input-item {
   align-items: center;
   justify-items: center;
 }
+.journal-statistic-card-two-cols {
+  display: flex;
+  gap: 16px;
+  height: 100%; /* allow it to stretch fully */
+}
+
+.joural-statistic-card-two-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* space out the two rows */
+  background: #2a2a2a;
+  padding: 16px;
+  border-radius: 8px;
+  gap: 20px;
+}
+.journal-value {
+  font-size: 40px;
+  font-weight: bold;
+  color: #8e2de2;
+  margin: 0;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.joural-statistic-card-sub {
+  background: #3a3a3a;
+  padding: 12px;
+  border-radius: 6px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.mood-table-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #2a2a2a;
+  padding: 16px;
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.journal-value-mood {
+  flex: 1; /* important: stretch table vertically */
+  overflow-y: auto;
+  width: 100%;
+}
+
+table.mood-table {
+  width: 100%;
+  height: 100%;
+}
+
+.mood-table td {
+  padding: 8px;
+  border-bottom: 1px solid #444;
+  width: 100%;
+}
+
+.journal-page .right-section {
+  width: 100%;
+  max-width: 400px;
+  display: flex ;
+  gap: 8px;
+  align-items: center;
+}
+.datepicker {
+  flex-grow: 1;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #c2c2c255;
+  border-radius: 4px;
+  height: 48px;
+  padding-left: 8px;
+  padding-right: 8px;
+  box-sizing: border-box;
+
+}
+
+.datepicker-input,
+.react-datepicker__input-container input {
+  flex-grow: 1;
+  appearance: none;
+  border: none;
+  outline: none;
+  background-color: #141414;
+  color: white;
+  font-size: 16px;
+  padding: 8px 0;
+  width: auto;          /* let input size to content */
+  max-width: 500px;     /* maximum width */
+  min-width: 150px;     /* optional, avoid too small */
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+input:-webkit-autofill {
+  box-shadow: 0 0 0px 1000px #141414 inset;
+  -webkit-text-fill-color: white;
+}
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container input {
+  width: 100%;  /* hoặc bao nhiêu bạn muốn */
+  box-sizing: border-box;
+}
+
+
+
 /* habit page */
 
 .habit-container {
@@ -622,12 +744,12 @@ select.input-item {
   align-items: center;
 }
 
-.habit-card-sub:hover {
+.habit-card-sub:hover, .joural-statistic-card-sub:hover {
   transform: scale(1.03);
   background: #000000;
 }
 
-.habit-label {
+.habit-label, .journal-label {
   font-size: 20px;
   font-weight: bold;
   color: #ffffff;
@@ -638,7 +760,7 @@ select.input-item {
   text-wrap: nowrap;
 }
 
-.habit-value {
+.habit-value{
   font-size: 80px;
   font-weight: bold;
   color: #8e2de2;
