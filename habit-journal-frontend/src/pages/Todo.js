@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Modal from "../components/Modal";
 import { FaTimes, FaEdit, FaTrash } from "react-icons/fa";
 import API from "../api";
-import { dummyProjects, dummyTasks } from "../components/Dumpdata"
 import Checkbox from '@mui/material/Checkbox';
 import { FaSortUp, FaSortDown, FaSort } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
-
+import { FaCalendarCheck } from "react-icons/fa";
+import { IoIosCloseCircle } from "react-icons/io";
 
 
 export default function Todo() {
@@ -25,11 +24,18 @@ export default function Todo() {
   const [taskData, setTaskData] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [titleError, setTitleError] = useState('');
-  const [selectedStatuses, setSelectedStatuses] = useState([]);
+  // const [selectedStatuses, setSelectedStatuses] = useState([]);
   const STATUS_LIST = ['Planning', 'In Progress', 'Completed'];
   const [showDropdown, setShowDropdown] = useState(false);
   const [modalType, setModalType] = useState(null);
   const STATUS_TASK_LIST = ['Completed', 'Incompleted'];
+  const [taskSelectedStatuses, setTaskSelectedStatuses] = useState([]);
+  const [projectSelectedStatuses, setProjectSelectedStatuses] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [filterTasks, setFilterTasks] = useState([]);
+
+
 
 
   //handle add new project 
@@ -79,12 +85,6 @@ export default function Todo() {
           is_completed: selectedTask.is_completed
         })
       } else {
-        // console.log("Fuck:", {
-        //   task_title: taskName,
-        //   task_content: descToSend,
-        //   due_date: formattedDate,
-        //   project: taskProject,
-        // });
 
         await API.post('todo/tasks/', {
           task_title: taskName,
@@ -106,7 +106,7 @@ export default function Todo() {
   }
   //handle edit
   const handleEdit = (type, data) => {
-    console.log("Edit data: ", JSON.stringify(data))
+    // console.log("Edit data: ", JSON.stringify(data))
     if (type.trim().toLowerCase() === 'project') {
       setProjectName(data.project_title);
       setProjectDesc(data.description);
@@ -163,7 +163,7 @@ export default function Todo() {
         setSelectedTask(res.data);
       }
 
-      console.log("Open modal: ", type, "     ", res.data);
+      // console.log("Open modal: ", type, "     ", res.data);
 
       // setShowModal(true);
     } catch (err) {
@@ -241,9 +241,9 @@ export default function Todo() {
 
 
   const findProjectName = (projectId) => {
-    console.log('Looking for projectId:', projectId);
+    // console.log('Looking for projectId:', projectId);
     const project = projectData.find(p => p.id === projectId);
-    console.log('Found project:', project);
+    // console.log('Found project:', project);
     return project?.project_title || '';
   }
 
@@ -254,7 +254,7 @@ export default function Todo() {
     let status = 'Planning'
     if (progress === 100)
       status = 'Completed'
-    if (progress > 0) status = 'In Progress'
+    else if (progress > 0) status = 'In Progress'
 
     return {
       ...project,
@@ -262,6 +262,7 @@ export default function Todo() {
       status
     }
   })
+  // console.log("Enrich data: ", enrichData);
 
   //handle sorting 
   const [sortConfig, setSortConfig] = useState({
@@ -300,29 +301,74 @@ export default function Todo() {
   };
 
   //handle filtered 
+  const selectedStatuses = activeTab === 'tasks' ? taskSelectedStatuses : projectSelectedStatuses;
+  const setSelectedStatuses = activeTab === 'tasks' ? setTaskSelectedStatuses : setProjectSelectedStatuses;
+
   const filteredProject = sortedProjects.filter(project =>
     selectedStatuses.length === 0 || selectedStatuses.includes(project.status)
   )
 
-  const filteredTasks = sortedTasks.filter((task) => {
-  //get status, maybe true or 'true' come from backend 
-  const isCompleted = task.is_completed === true || task.is_completed === 'true';
-  const isIncompleted = task.is_completed === false || task.is_completed === 'false';
+  // filteredData 
+  // const filteredDate = useMemo(() => {
+  //   const base = activeTab === 'tasks' ? sortedTasks : filteredProject;
+  //   console.log("base: ", base)
+  //   if (!startDate || !endDate || activeTab !== "tasks") return base;
+  //   const start = new Date(startDate).setHours(0, 0, 0, 0);
+  //   const end = new Date(endDate).setHours(0, 0, 0, 0);
+  //   console.log("base: ", base);
 
-  // filter in an array
-  const showCompleted = selectedStatuses.includes('Completed');
-  const showIncompleted = selectedStatuses.includes('Incompleted');
+  //   return base.filter(task => {
+  //     const due = new Date(task.due_date).setHours(0, 0, 0, 0);
+  //     return due >= start && due <= end;
+  //   });
+  // }, [activeTab, sortedTasks,filteredProject, startDate, endDate])
+  // // console.log("filtertaks: ", JSON.stringify(sortedTasks))
 
-  if (selectedStatuses.length === 0) return true; // No filters → show all
+  // const filteredData = filteredDate.filter((task) => {
+  //   //get status, maybe true or 'true' come from backend 
+  //   const isCompleted = task.is_completed === true || task.is_completed === 'true';
+  //   const isIncompleted = task.is_completed === false || task.is_completed === 'false';
 
-  if (showCompleted && isCompleted) return true;
-  if (showIncompleted && isIncompleted) return true;
+  //   // filter in an array
+  //   const showCompleted = selectedStatuses.includes('Completed');
+  //   const showIncompleted = selectedStatuses.includes('Incompleted');
 
-  return false;
-});
+  //   if (selectedStatuses.length === 0) return true; // No filters → show all
 
+  //   if (showCompleted && isCompleted) return true;
+  //   if (showIncompleted && isIncompleted) return true;
 
-  
+  //   return false;
+  // });
+  const filteredData = useMemo(() => {
+  const base = activeTab === 'tasks' ? sortedTasks : filteredProject;
+
+  return base.filter(task => {
+    // Date filtering
+    if (activeTab === 'tasks' && startDate && endDate) {
+      const start = new Date(startDate).setHours(0, 0, 0, 0);
+      const end = new Date(endDate).setHours(0, 0, 0, 0);
+      const due = new Date(task.due_date).setHours(0, 0, 0, 0);
+      if (due < start || due > end) return false;
+    }
+
+    // Status filtering
+    if (activeTab === 'tasks') {
+      const isCompleted = task.is_completed === true || task.is_completed === 'true';
+      const isIncompleted = task.is_completed === false || task.is_completed === 'false';
+
+      const showCompleted = selectedStatuses.includes('Completed');
+      const showIncompleted = selectedStatuses.includes('Incompleted');
+
+      if (selectedStatuses.length === 0) return true;
+      if (showCompleted && isCompleted) return true;
+      if (showIncompleted && isIncompleted) return true;
+
+      return false;
+    }
+    return true;
+  });
+}, [activeTab, sortedTasks, filteredProject, startDate, endDate, selectedStatuses]);
 
   // --------- Tasks--------//
   //fetch data 
@@ -330,7 +376,7 @@ export default function Todo() {
     try {
       const res = await API.get('todo/tasks/');
       setTaskData(res.data)
-      console.log("Task data: ", res.data)
+      // console.log("Task data: ", res.data)
     } catch (err) {
       console.error("Fail to fetch data: ", err);
       alert('Failed to fetch data. Please reload page.')
@@ -368,29 +414,32 @@ export default function Todo() {
     }
   }
 
+  const clearDate = () => {
+    setStartDate(null);
+    setEndDate(null)
+  }
 
   return (
     <div className="todo-page">
-      <h1>TodoList</h1>
+      <div className="sticky-container">
+        <h1>TodoList</h1>
 
-      {/* switch tab */}
-      <div class='switch-tabs'>
-        <button className={activeTab === 'projects' ? 'active' : ''}
-          onClick={() => setActiveTab('projects')}
-        >
-          Projects
-        </button>
-        <button className={activeTab === 'tasks' ? 'active' : ''}
-          onClick={() => setActiveTab('tasks')}
-        >
-          All Tasks
-        </button>
+        {/* switch tab */}
+        <div class='switch-tabs'>
+          <button className={activeTab === 'projects' ? 'active' : ''}
+            onClick={() => setActiveTab('projects')}
+          >
+            Projects
+          </button>
+          <button className={activeTab === 'tasks' ? 'active' : ''}
+            onClick={() => setActiveTab('tasks')}
+          >
+            All Tasks
+          </button>
 
-      </div>
+        </div>
 
-
-      {activeTab === 'projects' && (
-        <>
+        {activeTab === 'projects' && (
           <div className='actions-control'>
             {/* Left: Add */}
             <div className="left-section">
@@ -405,7 +454,7 @@ export default function Todo() {
                   className="dropdown-toggle"
                   onClick={() => setShowDropdown(!showDropdown)}
                 >
-                  Filter Status ▼
+                  {selectedStatuses.length === 0 ? "Filter Status ▼" : "Filtered ▼"}
                 </div>
 
                 {showDropdown && (
@@ -435,48 +484,9 @@ export default function Todo() {
               </div>
             </div>
           </div>
-          <table className="projects-table">
-            <thead>
-              <tr>
-                <th onClick={() => handleSort('project_title')} style={{ width: '200px' }}>
-                  Project Name {renderSortIcon('project_title')}
-                </th>
-                <th onClick={() => handleSort('description')} style={{ width: '40%' }}>
-                  Description {renderSortIcon('description')}
-                </th>
-                <th onClick={() => handleSort('tasks')} style={{ width: '10%' }}>
-                  Tasks {renderSortIcon('task')}
-                </th>
-                <th style={{ width: '25%' }}>Progress</th>
-                <th style={{ width: '15%' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProject.map((project) => {
-                return (
-                  <tr key={project.id}>
-                    <td className="project-title" onClick={() => openModal('project', project.id)}>{project.project_title}</td>
-                    <td>{project.description}</td>
-                    <td>{project.tasks}</td>
-                    <td>
-                      <div className="progress-bar-wrapper">
-                        <div className="progress-bar" style={{ width: `${project.progress}%` }} />
-                      </div>
-                    </td>
-                    <td>{project.status}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </>
+        )}
 
-
-      )}
-
-      {activeTab === 'tasks' && (
-        <>
-          {/* === Actions Bar === */}
+        {activeTab === 'tasks' && (
           <div className="actions-control">
             <div className="left-section">
               <button
@@ -489,12 +499,35 @@ export default function Todo() {
             </div>
 
             <div className="right-section">
+              <div className="datepicker">
+                <FaCalendarCheck size={24} style={{ color: "#cda7d2" }} />
+                <DatePicker
+                  className="datepicker-input"
+                  selectsRange
+                  startDate={startDate}
+                  endDate={endDate}
+                  onChange={(dates) => {
+                    const [start, end] = dates;
+                    setStartDate(start || null);
+                    setEndDate(end || null);
+                  }}
+                  isClearable={false}
+                  dateFormat="yyyy/MM/dd"
+                  placeholderText="Select date range"
+                />
+                {(startDate || endDate) && (
+
+                  <IoIosCloseCircle onClick={clearDate} size={26} style={{ color: "#cda7d2" }} />
+
+                )}
+              </div>
               <div className="dropdown-container">
                 <div
                   className="dropdown-toggle"
                   onClick={() => setShowDropdown(!showDropdown)}
                 >
-                  Filter Status ▼
+                  {/* Filter Status ▼ */}
+                  {selectedStatuses.length === 0 ? "Filter Status ▼" : "Filtered ▼"}
                 </div>
 
                 {showDropdown && (
@@ -524,77 +557,123 @@ export default function Todo() {
               </div>
             </div>
           </div>
+        )}
+      </div>
+      {activeTab === 'projects' && (
+        <>
+          <div className="table-container">
+            <table className="projects-table">
+              <thead>
+                <tr>
+                  <th onClick={() => handleSort('project_title')} style={{ width: '200px' }}>
+                    Project Name {renderSortIcon('project_title')}
+                  </th>
+                  <th onClick={() => handleSort('description')} style={{ width: '40%' }}>
+                    Description {renderSortIcon('description')}
+                  </th>
+                  <th onClick={() => handleSort('tasks')} style={{ width: '10%' }}>
+                    Tasks {renderSortIcon('task')}
+                  </th>
+                  <th style={{ width: '25%' }}>Progress</th>
+                  <th style={{ width: '15%' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.map((project) => {
+                  return (
+                    <tr key={project.id}>
+                      <td className="project-title" onClick={() => openModal('project', project.id)}>{project.project_title}</td>
+                      <td>{project.description}</td>
+                      <td>{project.tasks}</td>
+                      <td>
+                        <div className="progress-bar-wrapper">
+                          <div className="progress-bar" style={{ width: `${project.progress}%` }} />
+                        </div>
+                      </td>
+                      <td>{project.status}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
-          {/* === Tasks Table === */}
-          <table className="tasks-table">
-            <thead>
-              <tr>
-                <th onClick={() => handleSort('task_title')} style={{ width: '200px' }}>
-                  Task Name {renderSortIcon('task_title')}
-                </th>
-                <th onClick={() => handleSort('project')} style={{ width: '20%' }}>
-                  Project Name {renderSortIcon('project')}
-                </th>
-                <th onClick={() => handleSort('task_content')} style={{ width: '30%' }}>
-                  Task Content {renderSortIcon('task_content')}
-                </th>
-                <th onClick={() => handleSort('date')} style={{ width: '10%' }}>
-                  Created Date {renderSortIcon('date')}
-                </th>
-                <th onClick={() => handleSort('due_date')} style={{ width: '10%' }}>
-                  Due Date {renderSortIcon('due_date')}
-                </th>
-                <th onClick={() => handleSort('is_completed')} style={{ width: '10%' }}>
-                  Status {renderSortIcon('is_completed')}
-                </th>
-              </tr>
-            </thead>
+      {activeTab === 'tasks' && (
+        <>
+          <div className="table-container">
+            <table className="tasks-table">
+              <thead>
+                <tr>
+                  <th onClick={() => handleSort('task_title')} style={{ width: '220px' }}>
+                    Task Name {renderSortIcon('task_title')}
+                  </th>
+                  <th onClick={() => handleSort('project')} style={{ width: '15%' }}>
+                    Project Name {renderSortIcon('project')}
+                  </th>
+                  <th onClick={() => handleSort('task_content')} style={{ width: '35%' }}>
+                    Task Content {renderSortIcon('task_content')}
+                  </th>
+                  <th onClick={() => handleSort('date')} style={{ width: '10%' }}>
+                    Created Date {renderSortIcon('date')}
+                  </th>
+                  <th onClick={() => handleSort('due_date')} style={{ width: '10%' }}>
+                    Due Date {renderSortIcon('due_date')}
+                  </th>
+                  <th onClick={() => handleSort('is_completed')} style={{ width: '10%' }}>
+                    Status {renderSortIcon('is_completed')}
+                  </th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {filteredTasks.map((task) => {
-                const checked = task.is_completed === true || task.is_completed === 'true';
+              <tbody>
+                {filteredData.map((task) => {
+                  const checked = task.is_completed === true || task.is_completed === 'true';
 
-                return (
-                  <tr key={task.id}>
-                    <td className="task-title" onClick={() => openModal('task', task.id)}>
-                      {task.task_title}
-                    </td>
-                    <td>{findProjectName(task.project)}</td>
-                    <td>{task.task_content}</td>
-                    <td>{task.date}</td>
-                    <td>{task.due_date}</td>
-                    <td>
-                      <Checkbox
-                        checked={checked}
-                        readOnly
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          '& svg': {
-                            fontSize: 24,
-                            boxSizing: 'border-box',
-                          },
-                          color: '#dbb1ffd5',
-                          '&.Mui-checked': {
+                  return (
+                    <tr key={task.id}>
+                      <td className="task-title" onClick={() => openModal('task', task.id)}>
+                        {task.task_title}
+                      </td>
+                      <td>{findProjectName(task.project)}</td>
+                      <td>{task.task_content}</td>
+                      <td>{task.date}</td>
+                      <td>{task.due_date}</td>
+                      <td>
+                        <Checkbox
+                          checked={checked}
+                          readOnly
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            '& svg': {
+                              fontSize: 24,
+                              boxSizing: 'border-box',
+                            },
                             color: '#dbb1ffd5',
-                          },
-                        }}
-                        inputProps={{ 'aria-label': `task-completed-${task.id}` }}
-                        onChange={(e) =>
-                          handleCheckbox(
-                            task.id,
-                            e.target.checked,
-                            task.task_title,
-                            task.due_date
-                          )
-                        }
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                            '&.Mui-checked': {
+                              color: '#dbb1ffd5',
+                            },
+                          }}
+                          inputProps={{ 'aria-label': `task-completed-${task.id}` }}
+                          onChange={(e) =>
+                            handleCheckbox(
+                              task.id,
+                              e.target.checked,
+                              task.task_title,
+                              task.due_date
+                            )
+                          }
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
         </>
       )}
 
@@ -783,12 +862,7 @@ export default function Todo() {
             </Modal>
           )}
         </div>
-
-
       )}
-
     </div>
-
-
   );
 }

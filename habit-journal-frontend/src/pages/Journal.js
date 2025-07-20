@@ -251,36 +251,39 @@ export default function Journal() {
 
   return (
     <div className="journal-page">
-      <h1>My Journals</h1>
-      <div className="actions-control">
-        <div className="left-section">
-          <button className="add-btn" onClick={handleOpenModal}>New journal</button>
-        </div>
-        <div className='right-section'>
-          <div className='datepicker'>
-            <FaCalendarCheck size={24} style={{ color: "#cda7d2" }} />
-            <DatePicker
-              className="datepicker-input"
-              selectsRange
-              startDate={startDate}
-              endDate={endDate}
-              onChange={(dates) => {
-                const [start, end] = dates;
-                setStartDate(start || null);
-                setEndDate(end || null);
-              }}
-              isClearable={false}
-              dateFormat="yyyy/MM/dd"
-              placeholderText="Select date range"
-            />
-            {(startDate || endDate) && (
+      <div className="sticky-container">
+        <h1>My Journals</h1>
+        <div className="actions-control">
+          <div className="left-section">
+            <button className="add-btn" onClick={handleOpenModal}>New journal</button>
+          </div>
+          <div className='right-section'>
+            <div className='datepicker'>
+              <FaCalendarCheck size={24} style={{ color: "#cda7d2" }} />
+              <DatePicker
+                className="datepicker-input"
+                selectsRange
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(dates) => {
+                  const [start, end] = dates;
+                  setStartDate(start || null);
+                  setEndDate(end || null);
+                }}
+                isClearable={false}
+                dateFormat="yyyy/MM/dd"
+                placeholderText="Select date range"
+              />
+              {(startDate || endDate) && (
 
-              <IoIosCloseCircle onClick={clearDate} size={26} style={{ color: "#cda7d2" }} />
+                <IoIosCloseCircle onClick={clearDate} size={26} style={{ color: "#cda7d2" }} />
 
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
+      
       <div className="journal-statistic">
         <div className="journal-statistic-card-lists">
           <div className="joural-statistic-card" style={{ flex: 2 }}>

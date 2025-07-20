@@ -178,18 +178,17 @@ body,
 
 .main-content {
   flex: 1;
-  /* take remaining space */
   padding: 20px;
+  padding-top: 0px;
   background-color: #121212;
-  /* or your desired bg */
   color: white;
   overflow-y: auto;
 }
 
-
 /* Journal CSS */
 .journal-page, .habit-page, .todo-page {
   padding: 20px;
+  padding-top: 0px;
   max-width: 100%;
 }
 
@@ -205,6 +204,8 @@ body,
   cursor: pointer;
   height: 48px;
 }
+
+
 
 .journal-list, .projects-list {
   margin-top: 8px;
@@ -488,6 +489,7 @@ table.mood-table {
   gap: 8px;
   align-items: center;
 }
+
 .datepicker {
   flex-grow: 1;
   display: flex;
@@ -778,6 +780,7 @@ input:-webkit-autofill {
 }
 
 /* todo page */
+
 .switch-tabs button {
   padding: 8px 16px;
   border: none;
@@ -795,12 +798,18 @@ input:-webkit-autofill {
   color: #ffffff;
 }
 
+.table-container {
+  overflow-y: auto;
+  max-height: 1000px;
+}
+
 .projects-table,
 .tasks-table {
   width: 100%;
   border-collapse: collapse;
   color: white;
   table-layout: fixed;
+  
 }
 
 .projects-table th, .projects-table td,
@@ -811,6 +820,13 @@ input:-webkit-autofill {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.projects-table th, .tasks-table th {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #121212;
 }
 
 
@@ -856,9 +872,10 @@ input:-webkit-autofill {
 .actions-control {
   display: flex;
   justify-content: space-between;
-  align-items: top;
+  align-items: flex-start;
   /* margin-bottom: 24px; */
   gap: 12px;
+  position: sticky;
 }
 
 .right-section {
@@ -871,13 +888,15 @@ input:-webkit-autofill {
   min-width: 152px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  gap: 20px;
 }
 
 .dropdown-container {
   width: 100%;
   border: 1px solid #c2c2c255;
   border-radius: 4px;
+  max-width: 140px;
 }
 
 .dropdown-toggle {
@@ -918,6 +937,10 @@ input:-webkit-autofill {
   display: flex;
   gap: 6px;
 }
+.todo-page .right-section .datepicker {
+  height: 50px;
+  min-width: 300px;
+}
 
 .filter-dropdown input[type="checkbox"] {
   margin-right: 4px;
@@ -955,3 +978,12 @@ input:-webkit-autofill {
 .react-datepicker__triangle {
   display: none;
 }
+
+.todo-page .sticky-container, .habit-header, .journal-page .sticky-container {
+  position: sticky;
+  top: 0;
+  background-color: #121212;
+  z-index: 999;
+  padding: 20px 0;
+}
+
