@@ -21,25 +21,18 @@ A personal productivity app to help manage **journals**, **todos**, **habits**, 
 - Currently building mood tracking and statistics feature
 
 ### Dashboard
-- Planned: Visualize overall productivity and habit stats (under development)
+- Visualize overall productivity and habit stats
 
 ---
 
 ## Backend API
 
 - REST API built with **Django REST Framework**
+- Quotes API: link[https://zenquotes.io/api/today]
 - API documentation created using **Swagger**
 
 ---
 
-## Current Status
-
-- Habit page: **Mostly complete** with core features and visualization
-- Todo page: **Core CRUD and filtering done**, filtering by day remaining
-- Journal page: **CRUD done**, mood tracking and stats under development
-- Dashboard: **Planning and design phase**
-
----
 
 ## Getting Started
 
@@ -51,27 +44,19 @@ git clone https://github.com/motconkien/habitjounal
 
 # Backend setup
 cd personalapp/habit-journal-backend
-source ./venv/bin/activate
 python manage.py runserver
 
 # Frontend setup
 cd ../habit-journal-frontend
 npm start
 ```
-
----
-### Usage
-
-
-
 ---
 
 ## Planned Improvements
 
-- Complete mood tracking in journals
-- Finish filtering by day in todos
-- Build out dashboard with data visualizations and summaries
 - Mobile responsiveness improvements
+- Use CI/CD for development 
+- Fix minor bugs
 
 ---
 
