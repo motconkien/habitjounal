@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import API from "../api";
+import API, { setAuthToken } from "../api";
 
 function Register({ onRegister }) {
     const [username, setUsername] = useState('');
@@ -8,9 +8,14 @@ function Register({ onRegister }) {
     const [success, setSuccess] = useState('');
 
     const handleRegister = async (e) => {
-        e.prevenDefault();
+        e.preventDefault();
+        setError('');
+        setSuccess('');
         try {
-            await API.post('auth/register/', { username, password})
+            await API.post('auth/register/', { username, password });
+            setSuccess('Account created successfully! Please click Login to sign in.');
+            setUsername('');
+            setPassword('');
         } catch (err) {
             setError('Registration failed');
             console.error(err);
@@ -20,7 +25,12 @@ function Register({ onRegister }) {
     return (
         <div>
             <h2>Register</h2>
-            {success && <p style={{ color: 'green' }}>{success}</p>}
+            {success && (
+                <>
+                    <p style={{ color: 'green' }}>{success}</p>
+                </>
+            )}
+
             {error && <p style={{ color: 'red' }}>{error}</p>}
             <form className="login-form" onSubmit={handleRegister} >
                 <input

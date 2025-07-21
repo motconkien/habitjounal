@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'users',
     'journal',
     'habit',
-    'todo'
+    'todo',
+    'quotes'
 ]
 
 MIDDLEWARE = [

@@ -74,7 +74,9 @@ export default function Todo() {
   //hanlde add new task 
   const handlAddTask = async (e) => {
     e.preventDefault();
-    const formattedDate = taskDue instanceof Date ? taskDue.toISOString().split('T')[0] : taskDue;
+    const formattedDate = taskDue instanceof Date ? taskDue.toLocaleDateString('en-CA') // "YYYY-MM-DD" in most browsers
+    : taskDue;
+
     const descToSend = taskContent === '' ? 'Null' : taskContent;
     try {
       if (selectedTask) {
@@ -656,7 +658,6 @@ export default function Todo() {
                               color: '#dbb1ffd5',
                             },
                           }}
-                          inputProps={{ 'aria-label': `task-completed-${task.id}` }}
                           onChange={(e) =>
                             handleCheckbox(
                               task.id,

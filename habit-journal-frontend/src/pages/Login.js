@@ -1,11 +1,13 @@
 import React, {useState} from "react";
 import API, {setAuthToken} from "../api";
 import '../styles.css'; // 
+import { useNavigate } from 'react-router-dom';
 
 function Login ({ onLogin }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -22,8 +24,10 @@ function Login ({ onLogin }) {
             localStorage.setItem('username',username);
             localStorage.setItem('refresh_token', refresh);
             onLogin();
+            navigate('/dashboard');
         } catch (err) {
             setError('Invalid credentials')
+            setError('Login failed');
         }
     };
 

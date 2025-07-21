@@ -20,7 +20,9 @@ export default function Journal() {
   const [xAxisDays, setXAxisDays] = useState([]);
   const [filteredJournals, setFilteredJournals] = useState(journals);
   const [moodChoices, setMoodchoice] = useState([]);
-  const [selectedJournal, setSelectedJournal] = useState(null); 
+  const [selectedJournal, setSelectedJournal] = useState(null);
+  const [moodCount, setMoodCount] = useState({});
+  const [wordCount, setWordCount] = useState(0);
 
 
   //fetch data from api
@@ -90,7 +92,7 @@ export default function Journal() {
   }, []);
 
   //open model
- // for modal 
+  // for modal 
   const openModal = (Journal) => {
     setSelectedJournal(Journal);
   }
@@ -229,20 +231,28 @@ export default function Journal() {
   }, [journals, startDate, endDate]);
 
 
-  const wordCount = filteredJournals.reduce((acc, entry) => {
+  
+
+  useEffect(() => {
+    const moodCount = {}
+    filteredJournals.forEach(entry => {
+      const mood = entry.mood;
+      moodCount[mood] = (moodCount[mood] || 0 )+ 1
+    });
+    setMoodCount(moodCount);
+    const wordCount = filteredJournals.reduce((acc, entry) => {
     // acc = running total
     // entry = current journal entry
     // 0 is initial value of acc
     const words = entry.content.trim().split(/[.,\s]+/);
     return acc + words.length;
   }, 0)
+    setWordCount(wordCount);
 
-  const moodCount = {}
-  filteredJournals.forEach(entry => {
-    const mood = entry.mood;
-    moodCount[mood] = moodCount[mood] || 0 + 1
-  });
 
+  }, [filteredJournals])
+
+  // console.log("AAAA: ",moodCount)
   const clearDate = () => {
     setStartDate(null);
     setEndDate(null)
@@ -283,7 +293,7 @@ export default function Journal() {
           </div>
         </div>
       </div>
-      
+
       <div className="journal-statistic">
         <div className="journal-statistic-card-lists">
           <div className="joural-statistic-card" style={{ flex: 2 }}>
