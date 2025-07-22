@@ -184,7 +184,7 @@ export default function Dashboard() {
 
         const filter = taskData.filter(data => {
             const due = new Date(data.due_date).toISOString().split('T')[0];
-            return due === today && String(data.is_completed) === 'false';
+            return due >= today && String(data.is_completed) === 'false';
         });
 
         const numbertasks = taskData.filter(data => {
@@ -306,57 +306,66 @@ export default function Dashboard() {
                     <div className="quote">
                         {quote ? (
                             <div>
-                                <p style={{fontStyle: "italic"}}>{quote.q}</p>
+                                <p style={{ fontStyle: "italic" }}>{quote.q}</p>
                                 <p>- {quote.a} -</p>
                             </div>
                         ) : (<p>No data available</p>)}
                     </div>
+
                     <div className="mood-chart">
-                        <LineChart
-                            series={[
-                                {
-                                    data: moodSeries,
-                                    color: "#dbb1ffd5",
-                                    fontSize: "20px"
-                                },
-                            ]}
-                            xAxis={[
-                                {
-                                    scaleType: "band",
-                                    data: xAxisDays,
-                                }
-                            ]}
-                            yAxis={[
-                                {
-                                    min: 0,
-                                    max: 9,
-                                    tickMinStep: 1,
-                                    valueFormatter: (value) => moodLabelFromValue[value] ?? value,
-                                },
-                            ]}
-                            height={250}
-                            sx={{
-                                "& .MuiChartsAxis-line": {
-                                    stroke: "#ffffff !important",
-                                    strokeWidth: 1,
-                                },
-                                "& .MuiChartsAxis-tickLabel": {
-                                    fill: "#ffffff !important",
-                                    fontSize: "16px !important",
-                                },
-                                "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
-                                    fill: "#ffffff",
-                                    fontSize: "20px !important",
-                                },
-                                "& .MuiChartsLegend-root": {
-                                    color: "#ffffff !important",
-                                },
+                        <div className="mood-actions">
+                            <p className="card-title">Mood Chart</p>
+                        </div>
+                        <div className="chart-wrapper">
+                            {xAxisDays && xAxisDays.length > 0 ? (
+                                <LineChart
+                                    series={[
+                                        {
+                                            data: moodSeries,
+                                            color: "#dbb1ffd5",
+                                            fontSize: "20px"
+                                        },
+                                    ]}
+                                    xAxis={[
+                                        {
+                                            scaleType: "band",
+                                            data: xAxisDays,
+                                        }
+                                    ]}
+                                    yAxis={[
+                                        {
+                                            min: 0,
+                                            max: 9,
+                                            tickMinStep: 1,
+                                            valueFormatter: (value) => moodLabelFromValue[value] ?? value,
+                                        },
+                                    ]}
+                                    height={250}
+                                    sx={{
+                                        "& .MuiChartsAxis-line": {
+                                            stroke: "#ffffff !important",
+                                            strokeWidth: 1,
+                                        },
+                                        "& .MuiChartsAxis-tickLabel": {
+                                            fill: "#ffffff !important",
+                                            fontSize: "16px !important",
+                                        },
+                                        "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
+                                            fill: "#ffffff",
+                                            fontSize: "20px !important",
+                                        },
+                                        "& .MuiChartsLegend-root": {
+                                            color: "#ffffff !important",
+                                        },
 
-                            }}
-                            slotProps={{ tooltip: { trigger: 'none' } }}
-                            highlightScope={{ highlighted: 'none', faded: 'none' }}
+                                    }}
+                                    slotProps={{ tooltip: { trigger: 'none' } }}
+                                    highlightScope={{ highlighted: 'none', faded: 'none' }}
 
-                        />
+                                />) : (
+                                <p>No data available</p>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -409,8 +418,13 @@ export default function Dashboard() {
                     </div>
 
                     <div className="completed-chart">
-                        <p className="card-title">Completed Task</p>
-                        <CircularProgressWithLabel value={progress} />
+                        <div className="today-tasks-actions">
+                            <p className="card-title">Completed Task</p>
+                        </div>
+
+                        <div className="chart-wrapper">
+                            <CircularProgressWithLabel value={progress} />
+                        </div>
                     </div>
                     <div className="habit-today">
                         <div className="habit-today-actions">

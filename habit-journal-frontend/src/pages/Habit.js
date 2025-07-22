@@ -88,10 +88,10 @@ export default function Habit() {
     }
     try {
       if (selectedHabit) {
-        await API.put('habit/' + selectedHabit.id+"/",{
-          name:habitname,
-          description:habitdes,
-          frequency:habitfreq
+        await API.put('habit/' + selectedHabit.id + "/", {
+          name: habitname,
+          description: habitdes,
+          frequency: habitfreq
         })
         // setSelectedHabit(prev => ({
         //   ...prev,
@@ -99,13 +99,13 @@ export default function Habit() {
         //   description: habitdes,
         //   frequency: habitfreq
         // }));
-        
+
       } else {
         await API.post('habit/', {
-        name: habitname,
-        description: habitdes,
-        frequency: habitfreq,
-      })
+          name: habitname,
+          description: habitdes,
+          frequency: habitfreq,
+        })
       }
     }
 
@@ -240,7 +240,7 @@ export default function Habit() {
     weekly: '#96529b',
     monthly: '#7338a0',
   };
-
+  console.log("habitlength", habitstas.total_habits)
 
   return (
     <div className="habit-page">
@@ -260,41 +260,49 @@ export default function Habit() {
               </div>
               <div className="habit-card-sub">
                 <p className="habit-label">Max Streak</p>
-                <p className="habit-value">{Math.max(...summaryRecord.map(habit => habit.streak))}</p>
+                <p className="habit-value">
+                  {summaryRecord && summaryRecord.length > 0
+                    ? Math.max(...summaryRecord.map(habit => habit.streak))
+                    : 0}
+                </p>
+
               </div>
             </div>
 
           </div>
           <div className='habit-card'>
             <h3>Frequency Distribution</h3>
-            <div style={{ color: 'white' }}>
-              <PieChart
-                series={[
-                  {
-                    data: pieData,
-                    highlightScope: { fade: 'global', highlight: 'item' },
-                    faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
-                    valueFormatter: (dataPoint) => `${dataPoint.label}: ${dataPoint.value} habits`,
-                  },
-                ]}
-                height={200}
-                width={200}
-                slotProps={{
-                  legend: {
-                    sx: {
-                      fontSize: 14,
-                      color: 'white',
-                      // [`.${labelMarkClasses.fill}`]: {
-                      // fill: 'white',
-                      // },
+            <div style={{ color: 'white', textAlign: 'center' }}>
+              {habitstas.total_habits > 0 ? (
+                <PieChart
+                  series={[
+                    {
+                      data: pieData,
+                      highlightScope: { fade: 'global', highlight: 'item' },
+                      faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+                      valueFormatter: (dataPoint) =>
+                        `${dataPoint.label}: ${dataPoint.value} habits`,
                     },
-                  },
-                }}
-              />
-
+                  ]}
+                  height={200}
+                  width={200}
+                  slotProps={{
+                    legend: {
+                      direction: 'column',
+                      position: { vertical: 'middle', horizontal: 'right' },
+                      sx: {
+                        fontSize: 14,
+                        color: 'white',
+                      },
+                    },
+                  }}
+                />
+              ) : (
+                <p style={{ color: 'red', fontSize: '16px' }}>No data available</p>
+              )}
             </div>
-
           </div>
+
           <div className='habit-card'>
             <h3>Completence Rate</h3>
             {distribution.map(({ label, completence_rate }) => (
@@ -302,7 +310,7 @@ export default function Habit() {
                 <Typography variant="subtitle2" sx={{ color: 'white', mb: 1 }}>
                   {label.charAt(0).toUpperCase() + label.slice(1)}: {completence_rate}%
                 </Typography>
-                <LinearProgress 
+                <LinearProgress
                   variant="determinate"
                   value={completence_rate}
                   sx={{
@@ -320,7 +328,7 @@ export default function Habit() {
           </div>
         </div>
       </div>
-          
+
       {/* habit tracker */}
       <div className="habit-container">
         {/* Month Navigation */}
@@ -341,17 +349,17 @@ export default function Habit() {
             {dates.map((d) => (
               <div key={d.date} className="cell day-letter">{d.dayLetter}</div>
             ))}
-            
+
             <div className="cell streak-label" style={{ gridRow: 'span 2' }}>Streak</div>
             {/* Day number row */}
             {/* <div className="row date-row"> */}
-              {dates.map((d) => (
-                <div key={d.date} className="cell day-number">{d.dayNumber}</div>
-              ))}
+            {dates.map((d) => (
+              <div key={d.date} className="cell day-number">{d.dayNumber}</div>
+            ))}
             {/* </div> */}
           </div>
 
-          
+
 
           {/* Habit rows */}
           {summaryRecord.map((habit) => (

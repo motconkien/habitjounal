@@ -231,22 +231,22 @@ export default function Journal() {
   }, [journals, startDate, endDate]);
 
 
-  
+
 
   useEffect(() => {
     const moodCount = {}
     filteredJournals.forEach(entry => {
       const mood = entry.mood;
-      moodCount[mood] = (moodCount[mood] || 0 )+ 1
+      moodCount[mood] = (moodCount[mood] || 0) + 1
     });
     setMoodCount(moodCount);
     const wordCount = filteredJournals.reduce((acc, entry) => {
-    // acc = running total
-    // entry = current journal entry
-    // 0 is initial value of acc
-    const words = entry.content.trim().split(/[.,\s]+/);
-    return acc + words.length;
-  }, 0)
+      // acc = running total
+      // entry = current journal entry
+      // 0 is initial value of acc
+      const words = entry.content.trim().split(/[.,\s]+/);
+      return acc + words.length;
+    }, 0)
     setWordCount(wordCount);
 
 
@@ -353,7 +353,7 @@ export default function Journal() {
                     valueFormatter: (value) => moodLabelFromValue[value] ?? value,
                   },
                 ]}
-                height={250}
+                height={300}
                 sx={{
                   "& .MuiChartsAxis-line": {
                     stroke: "#ffffff !important",
@@ -361,10 +361,14 @@ export default function Journal() {
                   },
                   "& .MuiChartsAxis-tickLabel": {
                     fill: "#ffffff !important",
-                    fontSize: 12,
+                    fontSize: "14px !important",
                   },
                   "& .MuiChartsLegend-root": {
                     color: "#ffffff !important",
+                  },
+                  "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
+                    fill: "#ffffff",
+                    fontSize: "16px !important",
                   },
 
                 }}
