@@ -28,7 +28,7 @@ A personal productivity app to help manage **journals**, **todos**, **habits**, 
 ## Backend API
 
 - REST API built with **Django REST Framework**
-- Quotes API: link[https://zenquotes.io/api/today]
+- Quotes API: [https://zenquotes.io/api/today]
 - API documentation created using **Swagger**
 
 ---
