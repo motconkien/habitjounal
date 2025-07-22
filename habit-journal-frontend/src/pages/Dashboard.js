@@ -197,7 +197,10 @@ export default function Dashboard() {
         setFilterTask(filter);
 
         //solve hte progress 
-        const rate = Math.round(((numbertasks.length - filter.length) / numbertasks.length) * 100, 2)
+        const rate = numbertasks.length
+            ? Math.round(((numbertasks.length - filter.length) / numbertasks.length) * 100)
+            : 0;
+
         // console.log('ratee: ',rate)
         setProgress(rate)
     }, [taskData])
@@ -423,6 +426,7 @@ export default function Dashboard() {
                         </div>
 
                         <div className="chart-wrapper">
+
                             <CircularProgressWithLabel value={progress} />
                         </div>
                     </div>
