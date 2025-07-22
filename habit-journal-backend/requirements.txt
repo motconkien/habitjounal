@@ -7,6 +7,7 @@ django-extensions==4.1
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 drf-yasg==1.21.10
+gunicorn==23.0.0
 idna==3.10
 inflection==0.5.1
 packaging==25.0
@@ -17,3 +18,4 @@ requests==2.32.4
 sqlparse==0.5.3
 uritemplate==4.2.0
 urllib3==2.5.0
+whitenoise==6.9.0
