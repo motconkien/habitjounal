@@ -1,12 +1,12 @@
 // Sidebar.js
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaBook, FaCheck, FaListAlt, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaBook, FaCheck, FaListAlt, FaSignOutAlt, FaTrash } from 'react-icons/fa';
 import { BiUserCircle } from 'react-icons/bi';
 import { GiSunflower } from 'react-icons/gi';
 import { IoIosSunny } from "react-icons/io";
 
-function Sidebar({ username, handleLogout }) {
+function Sidebar({ username, handleLogout, open, close, isMobile }) {
   const location = useLocation();
 
   const menuItems = [
@@ -17,7 +17,11 @@ function Sidebar({ username, handleLogout }) {
   ];
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isMobile ? (open ? 'visible' : 'hidden') : ''}`}>
+      {isMobile && (
+        <FaTrash size={24} onClick={close}/>
+      )}
+      <div className="sidebar">
       <div className="sidebar-header">
         <IoIosSunny size={36} color='yellow' />
         <h2>{username}</h2>
@@ -39,6 +43,8 @@ function Sidebar({ username, handleLogout }) {
         </button>
       </nav>
     </div>
+    </div>
+    
   );
 };
 
