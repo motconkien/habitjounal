@@ -182,6 +182,7 @@ export default function Dashboard() {
 
         const today = new Date().toISOString().split('T')[0]; // "2025-07-21"
 
+
         const filter = taskData.filter(data => {
             const due = new Date(data.due_date).toISOString().split('T')[0];
             return due >= today && String(data.is_completed) === 'false';
@@ -192,13 +193,17 @@ export default function Dashboard() {
             return due === today;
         });
 
+        const filterToday = taskData.filter(data => {
+            const due = new Date(data.due_date).toISOString().split('T')[0];
+            return due == today && String(data.is_completed) === 'false';
+        });
 
         setNumbertask(numbertasks.length);
         setFilterTask(filter);
 
         //solve hte progress 
         const rate = numbertasks.length
-            ? Math.round(((numbertasks.length - filter.length) / numbertasks.length) * 100)
+            ? Math.round(((numbertasks.length - filterToday.length) / numbertasks.length) * 100)
             : 0;
 
         // console.log('ratee: ',rate)
