@@ -23,7 +23,7 @@ export default function Journal() {
   const [selectedJournal, setSelectedJournal] = useState(null);
   const [moodCount, setMoodCount] = useState({});
   const [wordCount, setWordCount] = useState(0);
-
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   //fetch data from api
   const fetchJournals = async () => {
@@ -361,7 +361,7 @@ export default function Journal() {
                   },
                   "& .MuiChartsAxis-tickLabel": {
                     fill: "#ffffff !important",
-                    fontSize: "14px !important",
+                    fontSize: isMobile ? "12px !important" : "14px !important",
                   },
                   "& .MuiChartsLegend-root": {
                     color: "#ffffff !important",

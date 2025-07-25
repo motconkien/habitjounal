@@ -111,10 +111,6 @@ body,
   margin-top: 10px;
 }
 
-.burger-menu {
-  display: none;
-}
-
 .menu-item {
   display: flex;
   align-items: center;
@@ -206,7 +202,6 @@ body,
   cursor: pointer;
   height: 48px;
 }
-
 
 
 .journal-list,
@@ -666,7 +661,8 @@ input:-webkit-autofill {
   text-align: left;
 }
 
-.label-cell .filler {
+.label-cell .filler,
+.streak-label .filler {
   display: block;
   height: 100%;
   width: 100%;
@@ -677,6 +673,8 @@ input:-webkit-autofill {
 .streak-label {
   text-align: center;
   right: 0;
+  background-color: #141414;
+  height: 100%;
 }
 
 
@@ -1086,10 +1084,10 @@ input:-webkit-autofill {
 
 .minor-info {
   display: flex;
-  flex-direction: row; 
+  flex-direction: row;
   width: auto;
   align-items: center;
-  gap: 8px; 
+  gap: 8px;
   font-size: 20px;
   color: #a9a9a9;
 }
@@ -1126,7 +1124,10 @@ input:-webkit-autofill {
   color: #f5f5f5;
 
 }
-.today-tasks-actions, .habit-today-actions, .mood-actions {
+
+.today-tasks-actions,
+.habit-today-actions,
+.mood-actions {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -1152,6 +1153,7 @@ input:-webkit-autofill {
   color: #f5f5f5;
 
 }
+
 .chart-wrapper {
   display: flex;
   justify-content: center;
@@ -1194,6 +1196,7 @@ input:-webkit-autofill {
   text-decoration: underline;
   color: #9e73f5;
 }
+
 .card-value {
   display: flex;
   flex-direction: row;
@@ -1215,7 +1218,7 @@ input:-webkit-autofill {
 }
 
 .habit-today li {
-  width: 100%;           
+  width: 100%;
   padding-bottom: 8px;
   padding-right: 8px;
 }
@@ -1256,31 +1259,147 @@ input:-webkit-autofill {
 
   /* sidebar */
   .sidebar {
-    display: none;
-    position: fixed;
-    top:0;
-    left:0;
-    width: 220px;
-    height: 100%;
-    background-color: #1f1f1f;
-    transition: transform 0.3s ease;
+    width: 100%;
+    background-color: #121212;
   }
 
-  .sidebar.open {
+  .journal-page,
+  .habit-page,
+  .todo-page,
+  .dashboard-page {
+    padding: 20px;
+    padding-top: 0px;
+    max-width: 100%;
     display: flex;
+    flex-direction: column;
   }
 
-  .burger-menu {
-    display: block;
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    z-index: 1000;
-    background: none;
-    border: none;
+  .dashboard-card-lists {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: stretch;
+  }
+
+  .weather-temp {
+    padding: 24px;
+  }
+
+  .today-tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .habit-today {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .card-value {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100%;
+    /* justify-content: space-between; */
+  }
+
+  .habit-today h3 {
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #454545;
+    padding: 10px 16px;
+    border-radius: 12px;
+    color: #e0e0e0;
+    margin-bottom: 8px;
+  }
+
+  /* journal page */
+  .add-btn {
+    /* padding: 10px 10px; */
+    font-size: 18px;
+    background: linear-gradient(to right, #4a00e0, #8e2de2);
     color: white;
-    font-size: 28px;
-    cursor: pointer;
+    height: 36px;
+    box-sizing: content-box;
+    text-wrap: nowrap;
+    margin-bottom: 0px;
+  }
+
+  .actions-control {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: sticky;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .right-section {
+    width: 100%;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  .journal-statistic-card-lists,
+  .habit-card-lists {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .journal-statistic-card-two-cols,
+  .habit-card-two-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .journal-list {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-backdrop {
+    padding: 0;
+  }
+
+  .modal-content {
+    height: auto;
+  }
+
+  textarea {
+    min-height: 300px;
+  }
+
+  /* todo page */
+  .todo-page .right-section{
+    /* height: ; */
+    /* min-width: 300px; */
+    padding: 0px;
+    margin: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .dropdown-container {
+    width: 100%;
+    border: 1px solid #c2c2c255;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  .table-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .projects-table,
+  .tasks-table {
+    min-width: 1000px;
   }
 
 }

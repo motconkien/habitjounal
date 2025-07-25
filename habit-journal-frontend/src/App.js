@@ -11,15 +11,16 @@ import Todo from "./pages/Todo";
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { RxHamburgerMenu } from "react-icons/rx";
+import Hamburger from 'hamburger-react';
 
 
 import './styles.css';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  const [sidebarOpen, setSideBarOpen] = useState(false);
+
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isOpen, setOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -56,10 +57,6 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  //close if switching from mobiel to desktop
-  useEffect(() => {
-    if (!isMobile) setSideBarOpen(false);
-  }, [isMobile]);
 
 
   if (!authChecked) {
@@ -163,63 +160,69 @@ function App() {
           path="/*"
           element={
             isLoggedIn ? (
-              isMobile ? (
-                //mobile layout
-                <>
-                  <div className="mobile-header">
-                    <RxHamburgerMenu onClick={() => setSideBarOpen(!sidebarOpen)} />
-                  </div>
-                  {sidebarOpen && (
-                    <Sidebar
-                      username={username}
-                      handleLogout={handleLogout}
-                      open={sidebarOpen}
-                      close={() => setSideBarOpen(false)}
-                      isMobile={true}
-                    />
-                  )}
-                  <div className="main-content">
-                    <Routes>
-                      <Route index element={<Navigate to="/dashboard" />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/journal" element={<Journal />} />
-                      <Route path="/habit" element={<Habit />} />
-                      <Route path="/todo" element={<Todo />} />
-                      <Route path="*" element={<Navigate to="/dashboard" />} />
-                    </Routes>
-                  </div>
+              <>
+                {isMobile && (
+                  <>
+                    <Hamburger toggled={isOpen} toggle={setOpen} />
+                    {isOpen && (
+                      <div className={`mobile-sidebar ${isOpen ? 'visible' : 'hidden'}`}>
+                        <Sidebar
+                          username={username}
+                          handleLogout={handleLogout}
+                          isMobile={true}
+                          isOpen={isOpen}
+                          onClose={() => setOpen(false)}
+                        />
 
-                </>
-              ) : (
-                //Desktop layout
-                < div className="app-container">
-                  <div className="sidebar-wrapper">
-                    {isMobile && (
-                      <RxHamburgerMenu onClick={() => setSideBarOpen(!sidebarOpen)} />
+                      </div>
+
                     )}
-                    <Sidebar
-                      username={username}
-                      handleLogout={handleLogout}
-                      isMobile={false} />
-                  </div>
-                  <div className="main-content">
-                    <Routes>
-                      <Route index element={<Navigate to="/dashboard" />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/journal" element={<Journal />} />
-                      <Route path="/habit" element={<Habit />} />
-                      <Route path="/todo" element={<Todo />} />
-                      <Route path="*" element={<Navigate to="/dashboard" />} />
-                    </Routes>
-                  </div>
-                </div>
-              )
+                    <div className="main-content">
+                      <Routes>
+                        <Route index element={<Navigate to="/dashboard" />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/journal" element={<Journal />} />
+                        <Route path="/habit" element={<Habit />} />
+                        <Route path="/todo" element={<Todo />} />
+                        <Route path="*" element={<Navigate to="/dashboard" />} />
+                      </Routes>
+                    </div>
 
+                  </>
+                )}
+                {/* desktop */}
+                {!isMobile && (
+                  <div className='app-container'>
+                    <div className="sidebar-wrapper">
+                      <Sidebar
+                        username={username}
+                        handleLogout={handleLogout}
+                        isMobile={false}
+
+                      />
+                    </div>
+                    <div className="main-content">
+                      <Routes>
+                        <Route index element={<Navigate to="/dashboard" />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/journal" element={<Journal />} />
+                        <Route path="/habit" element={<Habit />} />
+                        <Route path="/todo" element={<Todo />} />
+                        <Route path="*" element={<Navigate to="/dashboard" />} />
+                      </Routes>
+                    </div>
+                  </div>
+
+                )}
+
+
+              </>
             ) : (
               <Navigate to="/login" />
             )
           }
         />
+
       </Routes>
     </Router>
   );

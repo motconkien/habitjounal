@@ -9,6 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Link } from "react-router-dom";
+import { fireEvent } from "@testing-library/dom";
 
 
 export default function Dashboard() {
@@ -22,11 +23,9 @@ export default function Dashboard() {
     const [filtertask, setFilterTask] = useState([]);
     const [numbertask, setNumbertask] = useState();
     const [habitData, setHabitData] = useState([]);
-    const [dailyhabit, setDailyHabit] = useState();
-    const [weeklyhabit, setWeeklyHabit] = useState();
-    const [monthlyhabit, setMonthlyHabit] = useState();
     const [groupedHabits, setGroupedHabits] = useState({});
     const [progress, setProgress] = useState(0);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
 
 
@@ -186,8 +185,8 @@ export default function Dashboard() {
         const filter = taskData.filter(data => {
             const due = new Date(data.due_date).toISOString().split('T')[0];
             return due >= today && String(data.is_completed) === 'false';
-        });
-
+        }).sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+        
         const numbertasks = taskData.filter(data => {
             const due = new Date(data.due_date).toISOString().split('T')[0];
             return due === today;
@@ -356,11 +355,11 @@ export default function Dashboard() {
                                         },
                                         "& .MuiChartsAxis-tickLabel": {
                                             fill: "#ffffff !important",
-                                            fontSize: "16px !important",
+                                            fontSize: isMobile ? "12px !important" : "16px !important",
                                         },
                                         "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
                                             fill: "#ffffff",
-                                            fontSize: "20px !important",
+                                            fontSize: isMobile ? "16px !important" : "20px !important",
                                         },
                                         "& .MuiChartsLegend-root": {
                                             color: "#ffffff !important",
@@ -390,15 +389,14 @@ export default function Dashboard() {
                                     return (
                                         <tr key={task.id}>
                                             <td>{task.task_title}</td>
-                                            <td>{task.task_content.slice(0, 50)}</td>
+                                            {!isMobile && <td>{task.task_content.slice(0, 50)}</td>}
                                             <td>
                                                 <Checkbox
                                                     readOnly
                                                     checked={checked}
                                                     sx={{
                                                         width: 24,
-                                                        height: 24,
-                                                        '& svg': {
+                                                        height: 24,                                                        '& svg': {
                                                             fontSize: 24,
                                                             boxSizing: 'border-box',
                                                         },
